@@ -1,1 +1,0 @@
-export function BarMeter({ value }: { value: number }) { return <div className="h-2 w-full rounded-full bg-[#1b2538]"><div className="h-2 rounded-full bg-accent" style={{ width: `${Math.max(6, Math.min(100, value))}%` }} /></div>; }
