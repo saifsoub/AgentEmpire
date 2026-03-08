@@ -1,0 +1,280 @@
+{
+  "opportunities": [
+    {
+      "id": "opp_01",
+      "title": "Zero Bureaucracy Executive Diagnostic",
+      "description": "Premium diagnostic offer for government entities seeking execution intelligence and service redesign.",
+      "type": "Advisory",
+      "source": "internal",
+      "status": "PACKAGING",
+      "expectedRevenue": 65000,
+      "confidenceScore": 86,
+      "fitScore": 95,
+      "urgencyScore": 82,
+      "prestigeScore": 92,
+      "effortScore": 52,
+      "reusabilityScore": 88,
+      "speedToLaunchScore": 74,
+      "compoundingScore": 91,
+      "totalScore": 89,
+      "nextAction": "Finalize offer page and pricing architecture",
+      "dueDate": "2026-03-14",
+      "createdAt": "2026-03-01T09:00:00.000Z",
+      "updatedAt": "2026-03-06T09:00:00.000Z"
+    },
+    {
+      "id": "opp_02",
+      "title": "Government AI Readiness Toolkit",
+      "description": "Digital toolkit packaging strategic planning and AI readiness assessments into a branded product.",
+      "type": "Digital Product",
+      "source": "frameworks",
+      "status": "VALIDATING",
+      "expectedRevenue": 18000,
+      "confidenceScore": 79,
+      "fitScore": 90,
+      "urgencyScore": 68,
+      "prestigeScore": 76,
+      "effortScore": 40,
+      "reusabilityScore": 94,
+      "speedToLaunchScore": 81,
+      "compoundingScore": 85,
+      "totalScore": 84,
+      "nextAction": "Build landing page and sample asset",
+      "dueDate": "2026-03-18",
+      "createdAt": "2026-03-01T09:00:00.000Z",
+      "updatedAt": "2026-03-06T09:00:00.000Z"
+    },
+    {
+      "id": "opp_03",
+      "title": "Authority LinkedIn Engine",
+      "description": "A branded system that turns expertise into compounding authority posts and lead magnets.",
+      "type": "System",
+      "source": "content",
+      "status": "SELLING",
+      "expectedRevenue": 25000,
+      "confidenceScore": 72,
+      "fitScore": 88,
+      "urgencyScore": 72,
+      "prestigeScore": 81,
+      "effortScore": 35,
+      "reusabilityScore": 85,
+      "speedToLaunchScore": 84,
+      "compoundingScore": 88,
+      "totalScore": 83,
+      "nextAction": "Publish 3 posts tied to a lead magnet",
+      "dueDate": "2026-03-16",
+      "createdAt": "2026-03-02T09:00:00.000Z",
+      "updatedAt": "2026-03-06T09:00:00.000Z"
+    }
+  ],
+  "offers": [
+    {
+      "id": "offer_01",
+      "name": "AI Strategy & Execution Diagnostic",
+      "audience": "Government entities and executive teams",
+      "problem": "AI programs often look sophisticated but fail in execution, governance, and measurable business impact.",
+      "promise": "A premium rapid diagnostic that reveals strategic gaps, execution blockers, KPI breakdowns, and monetizable intervention paths.",
+      "pricingModel": "Fixed project",
+      "priceMin": 25000,
+      "priceMax": 65000,
+      "status": "LIVE",
+      "ctaUrl": "https://example.com/diagnostic",
+      "deliverables": [
+        "Executive briefing",
+        "Maturity score",
+        "Intervention roadmap"
+      ],
+      "createdAt": "2026-03-01T09:00:00.000Z",
+      "updatedAt": "2026-03-06T09:00:00.000Z"
+    },
+    {
+      "id": "offer_02",
+      "name": "Executive Performance Architecture Workshop",
+      "audience": "Leadership teams",
+      "problem": "Organizations struggle to link strategic goals, KPIs, initiatives, and accountability in a usable way.",
+      "promise": "A high-end strategy workshop that rebuilds alignment, measures, and action architecture.",
+      "pricingModel": "Workshop",
+      "priceMin": 18000,
+      "priceMax": 35000,
+      "status": "READY",
+      "ctaUrl": "",
+      "deliverables": [
+        "Workshop facilitation",
+        "KPI map",
+        "Action memo"
+      ],
+      "createdAt": "2026-03-01T09:00:00.000Z",
+      "updatedAt": "2026-03-06T09:00:00.000Z"
+    }
+  ],
+  "contentItems": [
+    {
+      "id": "content_01",
+      "pillar": "AI in Government",
+      "topic": "Why most AI strategies fail in execution",
+      "angle": "The problem is not ambition. It is operational translation.",
+      "hook": "Most AI roadmaps are performance theatre.",
+      "body": "Real transformation happens when ideas become operating systems, not pretty decks.",
+      "platform": "LinkedIn",
+      "status": "PUBLISHED",
+      "scheduledFor": "",
+      "publishedAt": "2026-03-05",
+      "views": 6400,
+      "engagements": 340,
+      "clicks": 76,
+      "leads": 8,
+      "createdAt": "2026-03-05T10:00:00.000Z",
+      "updatedAt": "2026-03-05T10:00:00.000Z"
+    },
+    {
+      "id": "content_02",
+      "pillar": "Zero Bureaucracy",
+      "topic": "Why service excellence fails when processes stay bloated",
+      "angle": "Front-end improvement without back-end redesign is theatre.",
+      "hook": "You cannot design a premium experience on top of bureaucratic debris.",
+      "body": "Service transformation dies when the process underneath remains ugly.",
+      "platform": "LinkedIn",
+      "status": "DRAFT",
+      "scheduledFor": "",
+      "publishedAt": "",
+      "views": 0,
+      "engagements": 0,
+      "clicks": 0,
+      "leads": 0,
+      "createdAt": "2026-03-06T10:00:00.000Z",
+      "updatedAt": "2026-03-06T10:00:00.000Z"
+    }
+  ],
+  "assets": [
+    {
+      "id": "asset_01",
+      "title": "Government AI Readiness Index Toolkit",
+      "type": "Toolkit",
+      "summary": "A premium assessment asset for evaluating institutional AI maturity, readiness, and execution barriers.",
+      "status": "PRODUCTIZED",
+      "price": 499,
+      "format": "PDF + prompts",
+      "salesCopy": "A premium toolkit for strategy and AI leaders.",
+      "createdAt": "2026-03-03T09:00:00.000Z",
+      "updatedAt": "2026-03-06T09:00:00.000Z"
+    },
+    {
+      "id": "asset_02",
+      "title": "Executive KPI Architecture Canvas",
+      "type": "Template",
+      "summary": "Framework to align strategy, KPIs, initiatives, and accountability in one executive visual.",
+      "status": "MONETIZED",
+      "price": 299,
+      "format": "Slides + worksheet",
+      "salesCopy": "Stop building KPI clutter. Build executive logic.",
+      "createdAt": "2026-03-02T09:00:00.000Z",
+      "updatedAt": "2026-03-06T09:00:00.000Z"
+    }
+  ],
+  "decisions": [
+    {
+      "id": "decision_01",
+      "title": "What should be monetized first?",
+      "context": "Several ideas exist, but not all deserve immediate focus.",
+      "options": [
+        "Executive diagnostic",
+        "Digital toolkit",
+        "SaaS waitlist"
+      ],
+      "recommendedOption": "Executive diagnostic",
+      "reasoningSummary": "It has the fastest path to cash, the strongest prestige, and builds proof for later productization.",
+      "riskLevel": "Medium",
+      "impactScore": 91,
+      "reversibilityScore": 80,
+      "status": "READY",
+      "createdAt": "2026-03-05T09:00:00.000Z",
+      "updatedAt": "2026-03-05T09:00:00.000Z"
+    }
+  ],
+  "briefings": [
+    {
+      "id": "brief_01",
+      "weekStart": "2026-03-07",
+      "weekObjective": "Turn strategy expertise into one monetizable asset and one stronger commercial offer.",
+      "topMoves": [
+        "Finalize the executive diagnostic offer and CTA",
+        "Publish two authority posts linked to a real offer",
+        "Package one framework into a downloadable paid asset"
+      ],
+      "risks": [
+        "Overcomplicating packaging",
+        "Posting without CTA",
+        "Too many parallel ideas"
+      ],
+      "focusAreas": [
+        "Revenue",
+        "Brand",
+        "Assets"
+      ],
+      "reviewNotes": "This week is about conversion, not exploration.",
+      "status": "READY",
+      "createdAt": "2026-03-07T08:00:00.000Z",
+      "updatedAt": "2026-03-07T08:00:00.000Z"
+    }
+  ],
+  "lifestyle": [
+    {
+      "id": "life_01",
+      "title": "Time-buying assistant workflow",
+      "category": "Time ROI",
+      "roi": 88,
+      "status": "ACTIVE",
+      "note": "Automate repetitive admin and preserve executive-level thinking hours.",
+      "createdAt": "2026-03-05T09:00:00.000Z",
+      "updatedAt": "2026-03-05T09:00:00.000Z"
+    },
+    {
+      "id": "life_02",
+      "title": "Premium visual environment upgrade",
+      "category": "Aesthetic ROI",
+      "roi": 74,
+      "status": "ACTIVE",
+      "note": "Sharper environment improves focus, identity, and consistency of premium output.",
+      "createdAt": "2026-03-05T09:00:00.000Z",
+      "updatedAt": "2026-03-05T09:00:00.000Z"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task_01",
+      "title": "Finalize diagnostic pricing and CTA",
+      "category": "Revenue",
+      "priority": "CRITICAL",
+      "status": "TODO",
+      "linkedEntityType": "offer",
+      "linkedEntityId": "offer_01",
+      "dueAt": "2026-03-10",
+      "createdAt": "2026-03-07T08:00:00.000Z",
+      "updatedAt": "2026-03-07T08:00:00.000Z"
+    },
+    {
+      "id": "task_02",
+      "title": "Publish authority post on AI execution failures",
+      "category": "Brand",
+      "priority": "HIGH",
+      "status": "DONE",
+      "linkedEntityType": "content",
+      "linkedEntityId": "content_01",
+      "dueAt": "2026-03-08",
+      "createdAt": "2026-03-07T08:00:00.000Z",
+      "updatedAt": "2026-03-07T08:00:00.000Z"
+    },
+    {
+      "id": "task_03",
+      "title": "Convert KPI canvas into premium downloadable asset",
+      "category": "Assets",
+      "priority": "HIGH",
+      "status": "IN_PROGRESS",
+      "linkedEntityType": "asset",
+      "linkedEntityId": "asset_02",
+      "dueAt": "2026-03-11",
+      "createdAt": "2026-03-07T08:00:00.000Z",
+      "updatedAt": "2026-03-07T08:00:00.000Z"
+    }
+  ]
+}
