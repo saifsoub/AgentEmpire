@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { RoleProvider } from "@/components/role-context";
+import { ToastProvider } from "@/components/toast";
 
 export const metadata: Metadata = {
   title: "Personal Empire OS",
@@ -9,9 +10,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
-        <RoleProvider>{children}</RoleProvider>
+        <RoleProvider>
+          <ToastProvider>
+            {children}
+          </ToastProvider>
+        </RoleProvider>
       </body>
     </html>
   );

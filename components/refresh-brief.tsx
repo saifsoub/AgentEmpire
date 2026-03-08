@@ -1,39 +1,37 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Sparkles } from "lucide-react";
+import { Button } from "@/components/ui";
+import { useToast } from "@/components/toast";
 
 export function RefreshBriefButton() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   async function generate() {
     setLoading(true);
-    setError(null);
     try {
       const res = await fetch("/api/briefings/generate", { method: "POST" });
-      if (!res.ok) setError("Failed to generate brief. Please try again.");
-      else router.refresh();
+      if (!res.ok) {
+        toast("Failed to generate brief. Please try again.", "error");
+      } else {
+        toast("Weekly brief generated!", "success");
+        router.refresh();
+      }
     } catch {
-      setError("Network error. Please try again.");
+      toast("Network error. Please try again.", "error");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div>
-      {error && (
-        <p role="alert" className="mb-2 text-sm text-red-400">{error}</p>
-      )}
-      <button
-        onClick={generate}
-        className="rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
-        disabled={loading}
-        aria-busy={loading}
-      >
-        {loading ? "Generating…" : "Generate weekly brief"}
-      </button>
-    </div>
+    <Button onClick={() => void generate()} disabled={loading} aria-busy={loading}>
+      <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+      {loading ? "Generating…" : "Generate brief"}
+    </Button>
   );
 }
+
