@@ -3,10 +3,12 @@ import { SectionCard } from "@/components/section-card";
 import { QuickCreate } from "@/components/quick-create";
 import { getDb } from "@/lib/store";
 
+export const dynamic = "force-dynamic";
+
 export default async function DecisionsPage() {
   const db = await getDb();
   return (
-    <AppShell pathname="/decisions" title="Decision Engine" subtitle="Analyze options and commit with clarity.">
+    <AppShell title="Decision Engine" subtitle="Analyze options and commit with clarity.">
       <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <div className="grid gap-4 md:grid-cols-2">
           {db.decisions.map((d) => (

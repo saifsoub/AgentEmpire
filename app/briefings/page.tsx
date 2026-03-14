@@ -4,12 +4,13 @@ import { RefreshBriefButton } from "@/components/refresh-brief";
 import { getDb } from "@/lib/store";
 import { shortDate } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 export default async function BriefingsPage() {
   const db = await getDb();
   const latest = db.briefings[0];
   return (
     <AppShell
-      pathname="/briefings"
       title="Weekly Briefings"
       subtitle="Strategic focus and direction for the week ahead."
       actions={<RefreshBriefButton />}

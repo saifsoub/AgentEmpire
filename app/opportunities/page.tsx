@@ -3,11 +3,13 @@ import { OpportunitiesTable } from "@/components/table";
 import { QuickCreate } from "@/components/quick-create";
 import { getDb } from "@/lib/store";
 
+export const dynamic = "force-dynamic";
+
 export default async function OpportunitiesPage() {
   const db = await getDb();
   const sorted = [...db.opportunities].sort((a, b) => b.totalScore - a.totalScore);
   return (
-    <AppShell pathname="/opportunities" title="Opportunities" subtitle="Rank and track your highest-leverage income streams.">
+    <AppShell title="Opportunities" subtitle="Rank and track your highest-leverage income streams.">
       <div className="grid gap-6">
         <OpportunitiesTable items={sorted} />
         <QuickCreate

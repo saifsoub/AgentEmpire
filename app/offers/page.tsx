@@ -5,10 +5,12 @@ import { Badge } from "@/components/ui";
 import { currency } from "@/lib/utils";
 import { getDb } from "@/lib/store";
 
+export const dynamic = "force-dynamic";
+
 export default async function OffersPage() {
   const db = await getDb();
   return (
-    <AppShell pathname="/offers" title="Offers" subtitle="Your live and draft commercial offers.">
+    <AppShell title="Offers" subtitle="Your live and draft commercial offers.">
       <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <div className="grid gap-4 md:grid-cols-2">
           {db.offers.map((offer) => (

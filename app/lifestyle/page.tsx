@@ -4,10 +4,12 @@ import { SectionCard } from "@/components/section-card";
 import { BarMeter } from "@/components/bar-meter";
 import { getDb } from "@/lib/store";
 
+export const dynamic = "force-dynamic";
+
 export default async function LifestylePage() {
   const db = await getDb();
   return (
-    <AppShell pathname="/lifestyle" title="Lifestyle OS" subtitle="Design a life that compounds value and freedom.">
+    <AppShell title="Lifestyle OS" subtitle="Design a life that compounds value and freedom.">
       <div className="grid gap-6">
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {db.lifestyle.map((item) => (

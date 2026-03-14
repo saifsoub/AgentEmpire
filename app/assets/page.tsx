@@ -4,10 +4,12 @@ import { SectionCard } from "@/components/section-card";
 import { currency } from "@/lib/utils";
 import { getDb } from "@/lib/store";
 
+export const dynamic = "force-dynamic";
+
 export default async function AssetsPage() {
   const db = await getDb();
   return (
-    <AppShell pathname="/assets" title="Asset Factory" subtitle="Turn insights, frameworks, and prompts into monetizable IP.">
+    <AppShell title="Asset Factory" subtitle="Turn insights, frameworks, and prompts into monetizable IP.">
       <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <div className="grid gap-4 md:grid-cols-2">
           {db.assets.map((asset) => (

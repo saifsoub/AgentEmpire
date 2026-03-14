@@ -431,7 +431,8 @@ export async function analyzeDecision(input: {
   // TODO: Replace this placeholder logic with a real LLM-powered decision analysis
   // (e.g. call an OpenAI/Anthropic API with the title, context, and options to get a
   // data-driven recommendation, risk assessment, and reasoning summary).
-  const winner = input.options[0] ?? "Option A";
+  // analyzeDecisionSchema enforces options.length >= 2, so index 0 always exists.
+  const winner = input.options[0];
   const row = await prisma.decision.create({
     data: {
       title: input.title,

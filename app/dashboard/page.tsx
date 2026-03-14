@@ -3,6 +3,8 @@ import { StatCard } from "@/components/stat-card";
 import { getDashboardSummary } from "@/lib/store";
 import { BarMeter } from "@/components/bar-meter";
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
   const summary = await getDashboardSummary();
   const pillars = [
@@ -14,7 +16,7 @@ export default async function DashboardPage() {
     { label: "Lifestyle", value: summary.lifestyleAlignmentScore },
   ];
   return (
-    <AppShell pathname="/dashboard" title="Dashboard" subtitle="Empire health at a glance.">
+    <AppShell title="Dashboard" subtitle="Empire health at a glance.">
       <div className="grid gap-6">
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           <StatCard label="Empire Score" value={`${summary.empireScore}/100`} footnote="Weighted composite score" />

@@ -4,10 +4,12 @@ import { QuickCreate } from "@/components/quick-create";
 import { Badge } from "@/components/ui";
 import { getDb } from "@/lib/store";
 
+export const dynamic = "force-dynamic";
+
 export default async function ContentPage() {
   const db = await getDb();
   return (
-    <AppShell pathname="/content" title="Content Engine" subtitle="Turn expertise into authority signals and lead magnets.">
+    <AppShell title="Content Engine" subtitle="Turn expertise into authority signals and lead magnets.">
       <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <div className="grid gap-4 md:grid-cols-2">
           {db.contentItems.map((item) => (
