@@ -1,26 +1,148 @@
-generator client { provider = "prisma-client-js" }
+// ─────────────────────────────────────────────────────────────────────────────
+// Personal Empire OS – Prisma Schema
+//
+// LOCAL DEV  (SQLite):   See prisma.config.ts + DATABASE_URL=file:./prisma/dev.db
+// PRODUCTION (Postgres): Install @prisma/adapter-pg, update prisma.config.ts
+//                        and set DATABASE_URL=postgresql://...
+//
+// Run after cloning:
+//   npx prisma db push && npm run db:seed
+// ─────────────────────────────────────────────────────────────────────────────
 
-datasource db { provider = "postgresql" url = env("DATABASE_URL") }
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  // Provider is referenced by prisma.config.ts at runtime.
+  // For local dev this is "sqlite"; change to "postgresql" for production.
+  provider = "sqlite"
+}
 
 model Opportunity {
-  id                 String   @id @default(uuid())
+  id                 String   @id @default(cuid())
   title              String
   description        String
   type               String
   source             String
-  status             String
-  expectedRevenue    Float
-  confidenceScore    Float
-  fitScore           Float
-  urgencyScore       Float
-  prestigeScore      Float
-  effortScore        Float
-  reusabilityScore   Float
-  speedToLaunchScore Float
-  compoundingScore   Float
-  totalScore         Float
-  nextAction         String
-  dueDate            String
+  status             String   @default("IDEA")
+  expectedRevenue    Float    @default(0)
+  confidenceScore    Float    @default(70)
+  fitScore           Float    @default(70)
+  urgencyScore       Float    @default(70)
+  prestigeScore      Float    @default(70)
+  effortScore        Float    @default(50)
+  reusabilityScore   Float    @default(70)
+  speedToLaunchScore Float    @default(70)
+  compoundingScore   Float    @default(70)
+  totalScore         Float    @default(70)
+  nextAction         String   @default("")
+  dueDate            String   @default("")
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
+}
+
+model Offer {
+  id           String   @id @default(cuid())
+  name         String
+  audience     String   @default("")
+  problem      String   @default("")
+  promise      String   @default("")
+  pricingModel String   @default("Fixed")
+  priceMin     Float    @default(0)
+  priceMax     Float    @default(0)
+  status       String   @default("DRAFT")
+  ctaUrl       String   @default("")
+  /// JSON-serialised string[]
+  deliverables String   @default("[]")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model ContentItem {
+  id           String   @id @default(cuid())
+  pillar       String   @default("Authority")
+  topic        String
+  angle        String   @default("")
+  hook         String   @default("")
+  body         String   @default("")
+  platform     String   @default("LinkedIn")
+  status       String   @default("DRAFT")
+  scheduledFor String   @default("")
+  publishedAt  String   @default("")
+  views        Int      @default(0)
+  engagements  Int      @default(0)
+  clicks       Int      @default(0)
+  leads        Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Asset {
+  id        String   @id @default(cuid())
+  title     String
+  type      String   @default("Toolkit")
+  summary   String   @default("")
+  status    String   @default("DRAFT")
+  price     Float    @default(0)
+  format    String   @default("PDF")
+  salesCopy String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Decision {
+  id                 String   @id @default(cuid())
+  title              String
+  context            String   @default("")
+  /// JSON-serialised string[]
+  options            String   @default("[]")
+  recommendedOption  String   @default("")
+  reasoningSummary   String   @default("")
+  riskLevel          String   @default("Medium")
+  impactScore        Float    @default(70)
+  reversibilityScore Float    @default(70)
+  status             String   @default("READY")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model Briefing {
+  id            String   @id @default(cuid())
+  weekStart     String
+  weekObjective String   @default("")
+  /// JSON-serialised string[]
+  topMoves      String   @default("[]")
+  /// JSON-serialised string[]
+  risks         String   @default("[]")
+  /// JSON-serialised string[]
+  focusAreas    String   @default("[]")
+  reviewNotes   String   @default("")
+  status        String   @default("READY")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model LifestyleItem {
+  id        String   @id @default(cuid())
+  title     String
+  category  String   @default("")
+  roi       Float    @default(70)
+  status    String   @default("ACTIVE")
+  note      String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Task {
+  id               String   @id @default(cuid())
+  title            String
+  category         String   @default("")
+  priority         String   @default("MEDIUM")
+  status           String   @default("TODO")
+  linkedEntityType String   @default("")
+  linkedEntityId   String   @default("")
+  dueAt            String   @default("")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
