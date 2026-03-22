@@ -49,6 +49,13 @@ export async function analyzeDecision(input: { title: string; context: string; o
   const item = { id: id("decision"), title: input.title, context: input.context, options: input.options, recommendedOption: winner, reasoningSummary: `Prioritize "${winner}" because it offers the strongest blend of speed, strategic fit, and compounding value.`, riskLevel: "Medium", impactScore: 88, reversibilityScore: 74, status: "READY", createdAt: now(), updatedAt: now() };
   db.decisions.unshift(item); await writeDb(db); return item;
 }
+export async function addLead(input: { name: string; email: string; message: string; sourceType: "offer" | "asset"; sourceId: string; sourceName: string; }) {
+  const db = await readDb();
+  if (!db.leads) db.leads = [];
+  const item = { id: id("lead"), name: input.name, email: input.email, message: input.message, sourceType: input.sourceType, sourceId: input.sourceId, sourceName: input.sourceName, status: "NEW" as const, createdAt: now() };
+  db.leads.unshift(item); await writeDb(db); return item;
+}
+export async function getLeads() { const db = await readDb(); return db.leads ?? []; }
 export async function generateWeeklyBrief() {
   const db = await readDb();
   const top = [...db.opportunities].sort((a,b)=>b.totalScore-a.totalScore).slice(0,3);
