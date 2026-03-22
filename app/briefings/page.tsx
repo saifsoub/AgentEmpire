@@ -7,7 +7,7 @@ export default async function BriefingsPage() {
   const db = await getDb();
   const latest = db.briefings[0];
   return (
-    <AppShell pathname="/briefings" title="Briefings" subtitle="Your weekly strategic brief — focus, moves, and risks." actions={<RefreshBriefButton />}>
+    <AppShell title="Briefings" subtitle="Your weekly strategic brief — focus, moves, and risks." actions={<RefreshBriefButton />}>
       <div className="grid gap-6">
         {latest && (
           <>

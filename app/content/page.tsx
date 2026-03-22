@@ -7,7 +7,7 @@ import { getDb } from "@/lib/store";
 export default async function ContentPage() {
   const db = await getDb();
   return (
-    <AppShell pathname="/content" title="Content" subtitle="Build authority by publishing ideas that compound over time.">
+    <AppShell title="Content" subtitle="Build authority by publishing ideas that compound over time.">
       <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <div className="grid gap-4 md:grid-cols-2">
           {db.contentItems.map(item => (

@@ -7,7 +7,7 @@ import { getDb } from "@/lib/store";
 export default async function DecisionsPage() {
   const db = await getDb();
   return (
-    <AppShell pathname="/decisions" title="Decisions" subtitle="Make high-stakes choices with clarity and documented reasoning.">
+    <AppShell title="Decisions" subtitle="Make high-stakes choices with clarity and documented reasoning.">
       <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <div className="space-y-4">
           {db.decisions.map(decision => (

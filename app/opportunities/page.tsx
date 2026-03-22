@@ -6,7 +6,7 @@ import { getDb } from "@/lib/store";
 export default async function OpportunitiesPage() {
   const db = await getDb();
   return (
-    <AppShell pathname="/opportunities" title="Opportunities" subtitle="Identify, score, and prioritize your highest-leverage plays.">
+    <AppShell title="Opportunities" subtitle="Identify, score, and prioritize your highest-leverage plays.">
       <div className="grid gap-6 xl:grid-cols-[1.4fr_0.6fr]">
         <OpportunitiesTable items={db.opportunities} />
         <QuickCreate
