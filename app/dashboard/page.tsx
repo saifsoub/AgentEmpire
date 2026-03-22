@@ -6,7 +6,7 @@ import { getDashboardSummary } from "@/lib/store";
 export default async function DashboardPage() {
   const summary = await getDashboardSummary();
   return (
-    <AppShell pathname="/dashboard" title="Dashboard" subtitle="Your empire at a glance.">
+    <AppShell title="Dashboard" subtitle="Your empire at a glance.">
       <div className="grid gap-6">
         <div className="grid gap-4 md:grid-cols-3">
           <StatCard label="Empire Score" value={summary.empireScore} footnote="Overall health across 6 dimensions" />
