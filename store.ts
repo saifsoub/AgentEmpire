@@ -38,9 +38,9 @@ export async function addContent(input: { pillar: string; topic: string; angle: 
   const item = { id: id("content"), pillar: input.pillar, topic: input.topic, angle: input.angle, hook: input.hook, body: input.body, platform: input.platform, status: "DRAFT" as const, scheduledFor: "", publishedAt: "", views: 0, engagements: 0, clicks: 0, leads: 0, createdAt: now(), updatedAt: now() };
   db.contentItems.unshift(item); await writeDb(db); return item;
 }
-export async function addAsset(input: { title: string; type: string; summary: string; price: number; format: string; }) {
+export async function addAsset(input: { title: string; type: string; summary: string; price: number; format: string; buyUrl?: string; }) {
   const db = await readDb();
-  const item = { id: id("asset"), title: input.title, type: input.type, summary: input.summary, status: "DRAFT" as const, price: input.price, format: input.format, salesCopy: "Premium asset built to convert expertise into monetizable IP.", createdAt: now(), updatedAt: now() };
+  const item = { id: id("asset"), title: input.title, type: input.type, summary: input.summary, status: "DRAFT" as const, price: input.price, format: input.format, salesCopy: "Premium asset built to convert expertise into monetizable IP.", buyUrl: input.buyUrl ?? "", createdAt: now(), updatedAt: now() };
   db.assets.unshift(item); await writeDb(db); return item;
 }
 export async function analyzeDecision(input: { title: string; context: string; options: string[]; }) {
