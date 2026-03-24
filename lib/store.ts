@@ -28,9 +28,9 @@ export async function addOpportunity(input: { title: string; description: string
   const item = { id: id("opp"), title: input.title, description: input.description, type: input.type, source: input.source, status: "IDEA" as const, expectedRevenue: input.expectedRevenue, confidenceScore: 70, fitScore: fit, urgencyScore: urgency, prestigeScore: strategicPrestige, effortScore: 45, reusabilityScore: reusability, speedToLaunchScore: speedToLaunch, compoundingScore: compoundingPotential, totalScore, nextAction: input.nextAction || "Validate and package", dueDate: input.dueDate, createdAt: now(), updatedAt: now() };
   db.opportunities.unshift(item); await writeDb(db); return item;
 }
-export async function addOffer(input: { name: string; audience: string; problem: string; promise: string; pricingModel: string; priceMin: number; priceMax: number; ctaUrl: string; }) {
+export async function addOffer(input: { name: string; audience: string; problem: string; promise: string; pricingModel: string; priceMin: number; priceMax: number; ctaUrl: string; calUrl?: string; }) {
   const db = await readDb();
-  const item = { id: id("offer"), name: input.name, audience: input.audience, problem: input.problem, promise: input.promise, pricingModel: input.pricingModel, priceMin: input.priceMin, priceMax: input.priceMax, status: "DRAFT" as const, ctaUrl: input.ctaUrl, deliverables: ["Discovery","Framework","Executive memo"], createdAt: now(), updatedAt: now() };
+  const item = { id: id("offer"), name: input.name, audience: input.audience, problem: input.problem, promise: input.promise, pricingModel: input.pricingModel, priceMin: input.priceMin, priceMax: input.priceMax, status: "DRAFT" as const, ctaUrl: input.ctaUrl, calUrl: input.calUrl ?? "", deliverables: ["Discovery","Framework","Executive memo"], createdAt: now(), updatedAt: now() };
   db.offers.unshift(item); await writeDb(db); return item;
 }
 export async function addContent(input: { pillar: string; topic: string; angle: string; hook: string; body: string; platform: string; }) {
@@ -49,13 +49,42 @@ export async function analyzeDecision(input: { title: string; context: string; o
   const item = { id: id("decision"), title: input.title, context: input.context, options: input.options, recommendedOption: winner, reasoningSummary: `Prioritize "${winner}" because it offers the strongest blend of speed, strategic fit, and compounding value.`, riskLevel: "Medium", impactScore: 88, reversibilityScore: 74, status: "READY", createdAt: now(), updatedAt: now() };
   db.decisions.unshift(item); await writeDb(db); return item;
 }
-export async function addLead(input: { name: string; email: string; message: string; sourceType: "offer" | "asset"; sourceId: string; sourceName: string; }) {
+export async function addLead(input: { name: string; email: string; message: string; sourceType: "offer" | "asset"; sourceId: string; sourceName: string; refContentId: string; }) {
   const db = await readDb();
   if (!db.leads) db.leads = [];
-  const item = { id: id("lead"), name: input.name, email: input.email, message: input.message, sourceType: input.sourceType, sourceId: input.sourceId, sourceName: input.sourceName, status: "NEW" as const, createdAt: now() };
+  const item = { id: id("lead"), name: input.name, email: input.email, message: input.message, sourceType: input.sourceType, sourceId: input.sourceId, sourceName: input.sourceName, refContentId: input.refContentId, status: "NEW" as const, createdAt: now() };
   db.leads.unshift(item); await writeDb(db); return item;
 }
 export async function getLeads() { const db = await readDb(); return db.leads ?? []; }
+export async function updateLead(id: string, patch: Partial<{ status: "NEW" | "CONTACTED" | "CONVERTED" | "ARCHIVED"; refContentId: string; }>) {
+  const db = await readDb();
+  if (!db.leads) db.leads = [];
+  const idx = db.leads.findIndex(l => l.id === id);
+  if (idx === -1) return null;
+  db.leads[idx] = { ...db.leads[idx], ...patch };
+  await writeDb(db); return db.leads[idx];
+}
+export async function updateOpportunity(id: string, patch: Partial<{ status: "IDEA" | "VALIDATING" | "PACKAGING" | "SELLING" | "LIVE" | "ARCHIVED"; nextAction: string; expectedRevenue: number; }>) {
+  const db = await readDb();
+  const idx = db.opportunities.findIndex(o => o.id === id);
+  if (idx === -1) return null;
+  db.opportunities[idx] = { ...db.opportunities[idx], ...patch, updatedAt: now() };
+  await writeDb(db); return db.opportunities[idx];
+}
+export async function updateOffer(id: string, patch: Partial<{ status: "DRAFT" | "READY" | "LIVE" | "ARCHIVED"; ctaUrl: string; calUrl: string; }>) {
+  const db = await readDb();
+  const idx = db.offers.findIndex(o => o.id === id);
+  if (idx === -1) return null;
+  db.offers[idx] = { ...db.offers[idx], ...patch, updatedAt: now() };
+  await writeDb(db); return db.offers[idx];
+}
+export async function updateAsset(id: string, patch: Partial<{ status: "IDEA" | "DRAFT" | "PRODUCTIZED" | "PUBLISHED" | "MONETIZED" | "ARCHIVED"; buyUrl: string; price: number; }>) {
+  const db = await readDb();
+  const idx = db.assets.findIndex(a => a.id === id);
+  if (idx === -1) return null;
+  db.assets[idx] = { ...db.assets[idx], ...patch, updatedAt: now() };
+  await writeDb(db); return db.assets[idx];
+}
 export async function generateWeeklyBrief() {
   const db = await readDb();
   const top = [...db.opportunities].sort((a,b)=>b.totalScore-a.totalScore).slice(0,3);

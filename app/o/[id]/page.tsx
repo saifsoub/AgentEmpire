@@ -1,14 +1,22 @@
 import { notFound } from "next/navigation";
-import { CheckCircle2, ExternalLink } from "lucide-react";
+import { CheckCircle2, ExternalLink, CalendarDays } from "lucide-react";
 import { getDb } from "@/lib/store";
 import { currency } from "@/lib/utils";
 import { LeadForm } from "@/components/lead-form";
 
-export default async function OfferLandingPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export default async function OfferLandingPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ ref?: string }>;
+}) {
+  const [{ id }, { ref }] = await Promise.all([params, searchParams]);
   const db = await getDb();
   const offer = db.offers.find(o => o.id === id);
   if (!offer || offer.status === "ARCHIVED") notFound();
+
+  const hasCalEmbed = Boolean(offer.calUrl);
 
   return (
     <div className="min-h-screen bg-app text-primary">
@@ -66,18 +74,46 @@ export default async function OfferLandingPage({ params }: { params: Promise<{ i
             </div>
           </div>
 
-          {/* Right: Lead capture */}
-          <div className="lg:sticky lg:top-8 lg:self-start">
-            <div className="card p-6">
-              <h2 className="text-xl font-semibold text-primary">Book your diagnostic</h2>
-              <p className="mt-1 mb-6 text-sm text-secondary">Leave your details and we'll reach out within 24 hours to schedule.</p>
-              <LeadForm
-                sourceType="offer"
-                sourceId={offer.id}
-                sourceName={offer.name}
-                ctaLabel="Request your diagnostic →"
-              />
-            </div>
+          {/* Right: Lead capture or Cal embed */}
+          <div className="lg:sticky lg:top-8 lg:self-start space-y-4">
+            {hasCalEmbed ? (
+              <div className="card overflow-hidden p-0">
+                <div className="flex items-center gap-2 border-b border-border px-5 py-4">
+                  <CalendarDays className="h-4 w-4 text-accent" />
+                  <h2 className="text-base font-semibold text-primary">Book a call</h2>
+                </div>
+                <iframe
+                  src={offer.calUrl}
+                  className="h-[600px] w-full border-0"
+                  title="Book a call"
+                />
+              </div>
+            ) : (
+              <div className="card p-6">
+                <h2 className="text-xl font-semibold text-primary">Book your diagnostic</h2>
+                <p className="mt-1 mb-6 text-sm text-secondary">Leave your details and we'll reach out within 24 hours to schedule.</p>
+                <LeadForm
+                  sourceType="offer"
+                  sourceId={offer.id}
+                  sourceName={offer.name}
+                  refContentId={ref}
+                  ctaLabel="Request your diagnostic →"
+                />
+              </div>
+            )}
+
+            {hasCalEmbed && (
+              <div className="card p-5">
+                <div className="mb-4 text-sm font-medium text-secondary">Prefer to leave a message first?</div>
+                <LeadForm
+                  sourceType="offer"
+                  sourceId={offer.id}
+                  sourceName={offer.name}
+                  refContentId={ref}
+                  ctaLabel="Send a note →"
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

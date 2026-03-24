@@ -79,6 +79,7 @@
       "priceMax": 65000,
       "status": "LIVE",
       "ctaUrl": "https://example.com/diagnostic",
+      "calUrl": "",
       "deliverables": [
         "Executive briefing",
         "Maturity score",
@@ -98,6 +99,7 @@
       "priceMax": 35000,
       "status": "READY",
       "ctaUrl": "",
+      "calUrl": "",
       "deliverables": [
         "Workshop facilitation",
         "KPI map",

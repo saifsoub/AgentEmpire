@@ -7,10 +7,11 @@ interface LeadFormProps {
   sourceType: "offer" | "asset";
   sourceId: string;
   sourceName: string;
+  refContentId?: string;
   ctaLabel?: string;
 }
 
-export function LeadForm({ sourceType, sourceId, sourceName, ctaLabel = "Request access" }: LeadFormProps) {
+export function LeadForm({ sourceType, sourceId, sourceName, refContentId, ctaLabel = "Request access" }: LeadFormProps) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
@@ -26,7 +27,7 @@ export function LeadForm({ sourceType, sourceId, sourceName, ctaLabel = "Request
       const res = await fetch("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, message, sourceType, sourceId, sourceName }),
+        body: JSON.stringify({ name, email, message, sourceType, sourceId, sourceName, refContentId: refContentId ?? "" }),
       });
       if (!res.ok) throw new Error("Submission failed");
       setDone(true);

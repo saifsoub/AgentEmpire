@@ -4,8 +4,14 @@ import { getDb } from "@/lib/store";
 import { currency } from "@/lib/utils";
 import { LeadForm } from "@/components/lead-form";
 
-export default async function AssetBuyPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export default async function AssetBuyPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ ref?: string }>;
+}) {
+  const [{ id }, { ref }] = await Promise.all([params, searchParams]);
   const db = await getDb();
   const asset = db.assets.find(a => a.id === id);
   if (!asset || asset.status === "ARCHIVED") notFound();
@@ -69,6 +75,7 @@ export default async function AssetBuyPage({ params }: { params: Promise<{ id: s
                       sourceType="asset"
                       sourceId={asset.id}
                       sourceName={asset.title}
+                      refContentId={ref}
                       ctaLabel="Notify me of updates"
                     />
                   </div>
@@ -83,6 +90,7 @@ export default async function AssetBuyPage({ params }: { params: Promise<{ id: s
                     sourceType="asset"
                     sourceId={asset.id}
                     sourceName={asset.title}
+                    refContentId={ref}
                     ctaLabel={`Get access — ${currency(asset.price)}`}
                   />
                 </>

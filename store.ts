@@ -28,9 +28,9 @@ export async function addOpportunity(input: { title: string; description: string
   const item = { id: id("opp"), title: input.title, description: input.description, type: input.type, source: input.source, status: "IDEA" as const, expectedRevenue: input.expectedRevenue, confidenceScore: 70, fitScore: fit, urgencyScore: urgency, prestigeScore: strategicPrestige, effortScore: 45, reusabilityScore: reusability, speedToLaunchScore: speedToLaunch, compoundingScore: compoundingPotential, totalScore, nextAction: input.nextAction || "Validate and package", dueDate: input.dueDate, createdAt: now(), updatedAt: now() };
   db.opportunities.unshift(item); await writeDb(db); return item;
 }
-export async function addOffer(input: { name: string; audience: string; problem: string; promise: string; pricingModel: string; priceMin: number; priceMax: number; ctaUrl: string; }) {
+export async function addOffer(input: { name: string; audience: string; problem: string; promise: string; pricingModel: string; priceMin: number; priceMax: number; ctaUrl: string; calUrl?: string; }) {
   const db = await readDb();
-  const item = { id: id("offer"), name: input.name, audience: input.audience, problem: input.problem, promise: input.promise, pricingModel: input.pricingModel, priceMin: input.priceMin, priceMax: input.priceMax, status: "DRAFT" as const, ctaUrl: input.ctaUrl, deliverables: ["Discovery","Framework","Executive memo"], createdAt: now(), updatedAt: now() };
+  const item = { id: id("offer"), name: input.name, audience: input.audience, problem: input.problem, promise: input.promise, pricingModel: input.pricingModel, priceMin: input.priceMin, priceMax: input.priceMax, status: "DRAFT" as const, ctaUrl: input.ctaUrl, calUrl: input.calUrl ?? "", deliverables: ["Discovery","Framework","Executive memo"], createdAt: now(), updatedAt: now() };
   db.offers.unshift(item); await writeDb(db); return item;
 }
 export async function addContent(input: { pillar: string; topic: string; angle: string; hook: string; body: string; platform: string; }) {
@@ -42,6 +42,12 @@ export async function addAsset(input: { title: string; type: string; summary: st
   const db = await readDb();
   const item = { id: id("asset"), title: input.title, type: input.type, summary: input.summary, status: "DRAFT" as const, price: input.price, format: input.format, salesCopy: "Premium asset built to convert expertise into monetizable IP.", buyUrl: input.buyUrl ?? "", createdAt: now(), updatedAt: now() };
   db.assets.unshift(item); await writeDb(db); return item;
+}
+export async function addLead(input: { name: string; email: string; message: string; sourceType: "offer" | "asset"; sourceId: string; sourceName: string; refContentId: string; }) {
+  const db = await readDb();
+  if (!db.leads) db.leads = [];
+  const item = { id: id("lead"), name: input.name, email: input.email, message: input.message, sourceType: input.sourceType, sourceId: input.sourceId, sourceName: input.sourceName, refContentId: input.refContentId, status: "NEW" as const, createdAt: now() };
+  db.leads.unshift(item); await writeDb(db); return item;
 }
 export async function analyzeDecision(input: { title: string; context: string; options: string[]; }) {
   const db = await readDb();
