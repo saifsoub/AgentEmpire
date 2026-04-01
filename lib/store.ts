@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { DemoDb } from "@/lib/types";
+import { DemoDb, EmpireSettings } from "@/lib/types";
 import { computeOpportunityScore, computeEmpireScore } from "@/lib/scoring";
 import { average } from "@/lib/utils";
 const dbPath = path.join(process.cwd(), "data", "demo-db.json");
@@ -56,6 +56,27 @@ export async function addLead(input: { name: string; email: string; message: str
   db.leads.unshift(item); await writeDb(db); return item;
 }
 export async function getLeads() { const db = await readDb(); return db.leads ?? []; }
+export async function getTasks() { const db = await readDb(); return db.tasks ?? []; }
+export async function addTask(input: { title: string; category: string; priority: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL"; linkedEntityType: string; linkedEntityId: string; dueAt: string; }) {
+  const db = await readDb();
+  if (!db.tasks) db.tasks = [];
+  const item = { id: id("task"), title: input.title, category: input.category, priority: input.priority, status: "TODO" as const, linkedEntityType: input.linkedEntityType, linkedEntityId: input.linkedEntityId, dueAt: input.dueAt, createdAt: now(), updatedAt: now() };
+  db.tasks.unshift(item); await writeDb(db); return item;
+}
+export async function updateTaskStatus(taskId: string, status: "TODO" | "IN_PROGRESS" | "DONE" | "CANCELED") {
+  const db = await readDb();
+  const task = db.tasks.find(t => t.id === taskId);
+  if (!task) throw new Error("Task not found");
+  task.status = status; task.updatedAt = now();
+  await writeDb(db); return task;
+}
+const DEFAULT_SETTINGS: EmpireSettings = { empireName: "Personal Empire", ownerName: "", currency: "AED", timezone: "Asia/Dubai", primaryMarket: "", weekStartsOn: "monday" };
+export async function getSettings() { const db = await readDb(); return db.settings ?? DEFAULT_SETTINGS; }
+export async function updateSettings(input: Partial<EmpireSettings>) {
+  const db = await readDb();
+  db.settings = { ...DEFAULT_SETTINGS, ...db.settings, ...input };
+  await writeDb(db); return db.settings;
+}
 export async function generateWeeklyBrief() {
   const db = await readDb();
   const top = [...db.opportunities].sort((a,b)=>b.totalScore-a.totalScore).slice(0,3);

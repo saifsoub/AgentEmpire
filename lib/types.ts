@@ -13,4 +13,12 @@ export interface Briefing { id: string; weekStart: string; weekObjective: string
 export interface LifestyleItem { id: string; title: string; category: string; roi: number; status: string; note: string; createdAt: string; updatedAt: string; }
 export interface Task { id: string; title: string; category: string; priority: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL"; status: "TODO" | "IN_PROGRESS" | "DONE" | "CANCELED"; linkedEntityType: string; linkedEntityId: string; dueAt: string; createdAt: string; updatedAt: string; }
 export interface Lead { id: string; name: string; email: string; message: string; sourceType: "offer" | "asset"; sourceId: string; sourceName: string; status: "NEW" | "CONTACTED" | "CONVERTED" | "ARCHIVED"; createdAt: string; }
-export interface DemoDb { opportunities: Opportunity[]; offers: Offer[]; contentItems: ContentItem[]; assets: Asset[]; decisions: Decision[]; briefings: Briefing[]; lifestyle: LifestyleItem[]; tasks: Task[]; leads: Lead[]; }
+export interface EmpireSettings {
+  empireName: string;
+  ownerName: string;
+  currency: string;
+  timezone: string;
+  primaryMarket: string;
+  weekStartsOn: "monday" | "sunday";
+}
+export interface DemoDb { opportunities: Opportunity[]; offers: Offer[]; contentItems: ContentItem[]; assets: Asset[]; decisions: Decision[]; briefings: Briefing[]; lifestyle: LifestyleItem[]; tasks: Task[]; leads: Lead[]; settings?: EmpireSettings; }

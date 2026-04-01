@@ -1,12 +1,14 @@
 import { AppShell } from "@/components/layout/app-shell";
+import { SettingsForm } from "@/components/settings-form";
+import { getSettings } from "@/lib/store";
 
-export default function SettingsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function SettingsPage() {
+  const settings = await getSettings();
   return (
     <AppShell pathname="/settings" title="Settings" subtitle="Configure your Empire OS preferences.">
-      <div className="card p-5 max-w-lg">
-        <h3 className="text-lg font-semibold text-primary">Empire OS Settings</h3>
-        <p className="mt-2 text-sm text-secondary">Configuration options coming soon.</p>
-      </div>
+      <SettingsForm initial={settings} />
     </AppShell>
   );
 }
