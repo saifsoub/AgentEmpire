@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BarChart3, BriefcaseBusiness, Car, CheckSquare, FileChartColumn, FileStack, FileText, LayoutDashboard, Settings, ShieldCheck, Users, Wallet, Zap } from "lucide-react";
+import { BarChart3, Bot, BriefcaseBusiness, Car, CheckSquare, FileChartColumn, FileStack, FileText, LayoutDashboard, Settings, ShieldCheck, Users, Wallet, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 const items = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -11,6 +11,7 @@ const items = [
   { href: "/briefings", label: "Briefings", icon: FileChartColumn },
   { href: "/leads", label: "Leads", icon: Users },
   { href: "/tasks", label: "Tasks", icon: CheckSquare },
+  { href: "/agents", label: "Agents", icon: Bot },
   { href: "/uae-car-sales", label: "UAE Car Sales", icon: Car },
   { href: "/superpowers", label: "Superpowers", icon: Zap },
   { href: "/lifestyle", label: "Lifestyle", icon: BarChart3 },

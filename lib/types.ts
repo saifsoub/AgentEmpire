@@ -21,4 +21,50 @@ export interface EmpireSettings {
   primaryMarket: string;
   weekStartsOn: "monday" | "sunday";
 }
-export interface DemoDb { opportunities: Opportunity[]; offers: Offer[]; contentItems: ContentItem[]; assets: Asset[]; decisions: Decision[]; briefings: Briefing[]; lifestyle: LifestyleItem[]; tasks: Task[]; leads: Lead[]; settings?: EmpireSettings; }
+export interface AgentToolParam {
+  type: string;
+  description: string;
+  required?: boolean;
+  enum?: string[];
+}
+export interface AgentToolDef {
+  name: string;
+  description: string;
+  parameters: Record<string, AgentToolParam>;
+  action: string;
+}
+export interface AgentConfig {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  category: string;
+  systemPrompt: string;
+  userMessageTemplate: string;
+  tools: AgentToolDef[];
+  inputFields: AgentInputField[];
+  status: "draft" | "active" | "archived";
+  builtIn: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+export interface AgentInputField {
+  key: string;
+  label: string;
+  type: "text" | "number" | "select" | "textarea";
+  placeholder?: string;
+  options?: string[];
+  required?: boolean;
+}
+export interface AgentRunStep {
+  type: "tool_call" | "tool_result" | "message";
+  name?: string;
+  content: string;
+}
+export interface AgentRunResult {
+  steps: AgentRunStep[];
+  output: string;
+  agentId: string;
+  agentName: string;
+}
+export interface DemoDb { opportunities: Opportunity[]; offers: Offer[]; contentItems: ContentItem[]; assets: Asset[]; decisions: Decision[]; briefings: Briefing[]; lifestyle: LifestyleItem[]; tasks: Task[]; leads: Lead[]; agents: AgentConfig[]; settings?: EmpireSettings; }

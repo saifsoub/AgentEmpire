@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { DemoDb, EmpireSettings } from "@/lib/types";
+import { DemoDb, EmpireSettings, AgentConfig, AgentToolDef, AgentInputField } from "@/lib/types";
 import { computeOpportunityScore, computeEmpireScore } from "@/lib/scoring";
 import { average } from "@/lib/utils";
 const dbPath = path.join(process.cwd(), "data", "demo-db.json");
@@ -82,4 +82,24 @@ export async function generateWeeklyBrief() {
   const top = [...db.opportunities].sort((a,b)=>b.totalScore-a.totalScore).slice(0,3);
   const item = { id: id("brief"), weekStart: new Date().toISOString().slice(0,10), weekObjective: "Turn one high-value idea into a monetizable asset and publish two authority signals.", topMoves: [`Package ${top[0]?.title ?? "your top opportunity"} into a clear offer`, "Publish 2 authority posts linked to a real offer", "Convert one existing framework into a premium downloadable asset"], risks: ["Over-splitting focus", "Packaging too late", "Posting without clear CTA"], focusAreas: ["Revenue", "Brand", "Assets"], reviewNotes: "Keep this week brutally focused on leverage and conversion.", status: "READY", createdAt: now(), updatedAt: now() };
   db.briefings.unshift(item); db.briefings = db.briefings.slice(0,8); await writeDb(db); return item;
+}
+export async function getAgents(): Promise<AgentConfig[]> { const db = await readDb(); return db.agents ?? []; }
+export async function getAgent(agentId: string): Promise<AgentConfig | undefined> { const db = await readDb(); return (db.agents ?? []).find(a => a.id === agentId); }
+export async function addAgent(input: { name: string; description: string; icon: string; category: string; systemPrompt: string; userMessageTemplate: string; tools: AgentToolDef[]; inputFields: AgentInputField[]; }): Promise<AgentConfig> {
+  const db = await readDb();
+  if (!db.agents) db.agents = [];
+  const item: AgentConfig = { id: id("agent"), name: input.name, description: input.description, icon: input.icon, category: input.category, systemPrompt: input.systemPrompt, userMessageTemplate: input.userMessageTemplate, tools: input.tools, inputFields: input.inputFields, status: "active", builtIn: false, createdAt: now(), updatedAt: now() };
+  db.agents.unshift(item); await writeDb(db); return item;
+}
+export async function updateAgent(agentId: string, input: Partial<Pick<AgentConfig, "name" | "description" | "icon" | "category" | "systemPrompt" | "userMessageTemplate" | "tools" | "inputFields" | "status">>): Promise<AgentConfig> {
+  const db = await readDb();
+  const agent = (db.agents ?? []).find(a => a.id === agentId);
+  if (!agent) throw new Error("Agent not found");
+  Object.assign(agent, input, { updatedAt: now() });
+  await writeDb(db); return agent;
+}
+export async function deleteAgent(agentId: string): Promise<void> {
+  const db = await readDb();
+  db.agents = (db.agents ?? []).filter(a => a.id !== agentId);
+  await writeDb(db);
 }
