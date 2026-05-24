@@ -6,7 +6,7 @@ export async function routeAgentExecution(agentId: string, inputs: Record<string
   const providers = getProviders();
   const executions: ToolResult[] = [];
 
-  for (const capability of agent.capabilities) {
+  for (const capability of agent.selectedTools) {
     let executed = false;
 
     for (const providerName of agent.preferredProviders) {
@@ -18,8 +18,8 @@ export async function routeAgentExecution(agentId: string, inputs: Record<string
         capability,
         agentId,
         inputs,
-        summary: `${agent.name} execution for ${capability}`,
-        sensitiveAction: capability.includes("email") ? "external_send" : undefined
+        summary: inputs.objective || `${agent.name} operational execution`,
+        sensitiveAction: ["email.draft", "calendar.create"].includes(capability) ? "external_send" : undefined
       });
 
       executions.push(result);
@@ -32,10 +32,10 @@ export async function routeAgentExecution(agentId: string, inputs: Record<string
 
     if (!executed) {
       executions.push({
-        status: "failed",
+        status: "queued_manual",
         provider: "manual",
         capability,
-        message: `No provider could execute ${capability}.`
+        message: `No configured provider executed ${capability}. The action remains available for manual/provider follow-up.`
       });
     }
   }
