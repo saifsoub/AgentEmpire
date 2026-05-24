@@ -21,4 +21,36 @@ export interface EmpireSettings {
   primaryMarket: string;
   weekStartsOn: "monday" | "sunday";
 }
-export interface DemoDb { opportunities: Opportunity[]; offers: Offer[]; contentItems: ContentItem[]; assets: Asset[]; decisions: Decision[]; briefings: Briefing[]; lifestyle: LifestyleItem[]; tasks: Task[]; leads: Lead[]; settings?: EmpireSettings; }
+
+export interface AgentRunLog {
+  id: string;
+  agentId: string;
+  provider: string;
+  capability: string;
+  status: string;
+  message: string;
+  createdAt: string;
+}
+
+export interface ApprovalItem {
+  id: string;
+  source: string;
+  action: string;
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  createdAt: string;
+}
+
+export interface DemoDb {
+  opportunities: Opportunity[];
+  offers: Offer[];
+  contentItems: ContentItem[];
+  assets: Asset[];
+  decisions: Decision[];
+  briefings: Briefing[];
+  lifestyle: LifestyleItem[];
+  tasks: Task[];
+  leads: Lead[];
+  settings?: EmpireSettings;
+  agentRuns?: AgentRunLog[];
+  approvals?: ApprovalItem[];
+}
