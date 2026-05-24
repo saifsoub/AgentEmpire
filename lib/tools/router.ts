@@ -1,4 +1,4 @@
-import { getAgent, logAgentRun, createApproval } from "@/lib/store";
+import { getAgent, logAgentRun, createApproval, findMatchingActiveTask, closeMatchedTask } from "@/lib/store";
 import type { AgentCapability, ToolProviderName } from "@/lib/agents/definitions";
 import { getProviders, type ToolResult } from "@/lib/tools/providers";
 
@@ -12,6 +12,7 @@ export async function routeAgentExecution(agentId: string, inputs: Record<string
   const executions: ToolResult[] = [];
   const createdRunIds: string[] = [];
   const createdApprovalIds: string[] = [];
+  const matchedTask = await findMatchingActiveTask(inputs.objective || "");
 
   for (const selectedTool of agent.selectedTools) {
     const capability = toCapability(selectedTool);
@@ -39,9 +40,20 @@ export async function routeAgentExecution(agentId: string, inputs: Record<string
         provider: result.provider,
         capability: result.capability,
         status: result.status,
-        message: result.message
+        message: result.message,
+        createdTasks: matchedTask ? [matchedTask.id] : undefined
       });
       createdRunIds.push(run.id);
+
+      if (matchedTask) {
+        if (result.status === "executed") {
+          await closeMatchedTask(matchedTask.id, "DONE");
+        } else if (result.status === "needs_approval") {
+          await closeMatchedTask(matchedTask.id, "WAITING_APPROVAL");
+        } else if (["failed", "missing_connector"].includes(result.status)) {
+          await closeMatchedTask(matchedTask.id, "BLOCKED", result.message);
+        }
+      }
 
       if (result.status === "needs_approval") {
         const approval = await createApproval({
@@ -70,12 +82,16 @@ export async function routeAgentExecution(agentId: string, inputs: Record<string
       executions.push(fallback);
       const run = await logAgentRun({ agentId, objective: inputs.objective || "", provider: fallback.provider, capability: fallback.capability, status: fallback.status, message: fallback.message });
       createdRunIds.push(run.id);
+      if (matchedTask) {
+        await closeMatchedTask(matchedTask.id, "BLOCKED", fallback.message);
+      }
     }
   }
 
   return {
     agent,
     executedAt: new Date().toISOString(),
+    matchedTaskId: matchedTask?.id,
     createdRunIds,
     createdApprovalIds,
     providersChecked: providers.map(p => ({ name: p.name, configured: p.isConfigured(), capabilities: p.capabilities() })),
