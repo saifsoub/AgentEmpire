@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
 import { getDb } from "@/lib/store";
 
 export interface SuperpowersResult {
@@ -39,11 +38,11 @@ ${tasks}
 CURRENT WEEKLY BRIEF:
 ${brief}
 
-Analyze this empire and respond with ONLY valid JSON matching this exact structure:
+Respond with ONLY valid JSON matching this exact structure:
 {
-  "pulse": "2-3 sentence assessment of the empire's current health, momentum, and most critical leverage point",
+  "pulse": "2-3 sentence assessment",
   "topMoves": [
-    { "title": "Move title", "reasoning": "Why this is the highest-leverage move right now", "impact": "HIGH" },
+    { "title": "Move title", "reasoning": "Why this is high leverage", "impact": "HIGH" },
     { "title": "Move title", "reasoning": "Why this matters", "impact": "HIGH" },
     { "title": "Move title", "reasoning": "Why this matters", "impact": "MEDIUM" }
   ],
@@ -52,61 +51,65 @@ Analyze this empire and respond with ONLY valid JSON matching this exact structu
     { "title": "Risk title", "description": "What could go wrong and why", "severity": "MEDIUM" },
     { "title": "Risk title", "description": "What could go wrong and why", "severity": "LOW" }
   ],
-  "powerActions": [
-    "Specific executable action 1",
-    "Specific executable action 2",
-    "Specific executable action 3",
-    "Specific executable action 4",
-    "Specific executable action 5"
-  ]
+  "powerActions": ["Specific executable action 1", "Specific executable action 2", "Specific executable action 3", "Specific executable action 4", "Specific executable action 5"]
 }
 
-Be direct, specific, and ruthlessly prioritized. Reference actual data points. No fluff.`;
+Be direct, specific, and prioritized. Reference actual data points. No fluff.`;
 }
 
 function getMockResult(): SuperpowersResult {
   return {
-    pulse: "Your empire has strong strategic positioning with 3 high-scoring opportunities (avg score 85) and a live premium offer. The critical bottleneck is execution velocity — the diagnostic needs a finalized CTA to start converting. Revenue engine is primed but not yet firing.",
+    pulse: "Your empire has strong strategic positioning with high-scoring opportunities and a live premium offer. The critical bottleneck is execution velocity: one clear conversion action needs to move from plan to shipped.",
     topMoves: [
-      { title: "Finalize & launch the Executive Diagnostic offer", reasoning: "Score 89, already in PACKAGING — one push gets it to SELLING. Highest ROI per hour spent right now.", impact: "HIGH" },
-      { title: "Publish 2 LinkedIn posts linked to a real offer CTA", reasoning: "Content machine is proven (6.4K views, 8 leads from one post). Replicate immediately to build compounding authority.", impact: "HIGH" },
-      { title: "Productize the AI Readiness Toolkit into a landing page", reasoning: "Score 84, 94% reusability score — this is passive revenue waiting to be activated.", impact: "MEDIUM" },
+      { title: "Finalize and launch the Executive Diagnostic offer", reasoning: "A packaged offer can convert faster than a new idea. This is the shortest path from positioning to revenue.", impact: "HIGH" },
+      { title: "Publish two offer-linked authority posts", reasoning: "Content should route attention into a real next action rather than remain visibility-only.", impact: "HIGH" },
+      { title: "Productize the strongest toolkit into a landing page", reasoning: "Reusable IP becomes useful only when it has a buyer path and a clear promise.", impact: "MEDIUM" }
     ],
     risks: [
-      { title: "Revenue gap between pipeline and conversion", description: "You have 3 strong opportunities but only 1 live offer. The gap between packaging and selling is where empires stall.", severity: "HIGH" },
-      { title: "Content publishing cadence dropping", description: "Only 1 published piece with 1 still in DRAFT. Authority compounds only when published consistently.", severity: "MEDIUM" },
-      { title: "Single task backlog bottleneck", description: "Critical task (diagnostic CTA) is still TODO — this single blocker prevents revenue flow.", severity: "LOW" },
+      { title: "Pipeline-to-conversion gap", description: "Strong opportunities can stall if they are not routed into offers, tasks, or approvals.", severity: "HIGH" },
+      { title: "Publishing without CTA", description: "Authority signals lose commercial value when not connected to a clear buyer action.", severity: "MEDIUM" },
+      { title: "Single task bottleneck", description: "One unfinished action can keep the whole revenue flow waiting.", severity: "LOW" }
     ],
     powerActions: [
-      "Write the offer page copy for the Executive Diagnostic in the next 2 hours",
-      "Set a price and CTA URL for the diagnostic — commit to a number today",
-      "Publish the Zero Bureaucracy draft post with a link to your live offer",
-      "Build a simple landing page for the AI Readiness Toolkit this week",
-      "Block 90 minutes on Friday to review empire scores and update statuses",
-    ],
+      "Write the offer page copy for the Executive Diagnostic",
+      "Set a price and CTA URL for the diagnostic",
+      "Publish one LinkedIn post linked to the live offer",
+      "Build a simple landing page for the top toolkit",
+      "Review agent outputs and route them into tasks or approvals"
+    ]
   };
+}
+
+async function callGroq(prompt: string): Promise<SuperpowersResult> {
+  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${process.env.GROQ_API_KEY}`
+    },
+    body: JSON.stringify({
+      model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.2,
+      response_format: { type: "json_object" }
+    })
+  });
+
+  if (!response.ok) throw new Error(`Groq request failed: ${response.status}`);
+  const payload = await response.json();
+  const text = payload.choices?.[0]?.message?.content || "";
+  return JSON.parse(text) as SuperpowersResult;
 }
 
 export async function POST() {
   try {
     const db = await getDb();
 
-    if (!process.env.ANTHROPIC_API_KEY) {
+    if (!process.env.GROQ_API_KEY) {
       return NextResponse.json(getMockResult());
     }
 
-    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-    const message = await client.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 2000,
-      messages: [{ role: "user", content: buildPrompt(db) }],
-    });
-
-    const text = message.content[0].type === "text" ? message.content[0].text : "";
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error("No JSON in response");
-
-    const result = JSON.parse(jsonMatch[0]) as SuperpowersResult;
+    const result = await callGroq(buildPrompt(db));
     return NextResponse.json(result);
   } catch {
     return NextResponse.json(getMockResult());
