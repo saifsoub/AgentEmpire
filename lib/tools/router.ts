@@ -1,15 +1,24 @@
-import { getAgentDefinition } from "@/lib/agents/definitions";
+import { getAgent, logAgentRun, createApproval } from "@/lib/store";
+import type { AgentCapability, ToolProviderName } from "@/lib/agents/definitions";
 import { getProviders, type ToolResult } from "@/lib/tools/providers";
 
+const toCapability = (value: string) => value as AgentCapability;
+const toProvider = (value: string) => value as ToolProviderName;
+const isSensitiveCapability = (capability: string) => ["email.draft", "calendar.create"].includes(capability);
+
 export async function routeAgentExecution(agentId: string, inputs: Record<string, string>) {
-  const agent = getAgentDefinition(agentId);
+  const agent = await getAgent(agentId);
   const providers = getProviders();
   const executions: ToolResult[] = [];
+  const createdRunIds: string[] = [];
+  const createdApprovalIds: string[] = [];
 
-  for (const capability of agent.selectedTools) {
+  for (const selectedTool of agent.selectedTools) {
+    const capability = toCapability(selectedTool);
     let executed = false;
 
-    for (const providerName of agent.preferredProviders) {
+    for (const preferredProvider of agent.preferredProviders) {
+      const providerName = toProvider(preferredProvider);
       const provider = providers.find(p => p.name === providerName);
       if (!provider) continue;
       if (!provider.capabilities().includes(capability)) continue;
@@ -18,11 +27,32 @@ export async function routeAgentExecution(agentId: string, inputs: Record<string
         capability,
         agentId,
         inputs,
-        summary: inputs.objective || `${agent.name} operational execution`,
-        sensitiveAction: ["email.draft", "calendar.create"].includes(capability) ? "external_send" : undefined
+        summary: inputs.objective || `${agent.name} internal operation`,
+        sensitiveAction: isSensitiveCapability(capability) ? "external_send" : undefined
       });
 
       executions.push(result);
+
+      const run = await logAgentRun({
+        agentId,
+        objective: inputs.objective || "",
+        provider: result.provider,
+        capability: result.capability,
+        status: result.status,
+        message: result.message
+      });
+      createdRunIds.push(run.id);
+
+      if (result.status === "needs_approval") {
+        const approval = await createApproval({
+          source: agentId,
+          action: result.capability,
+          provider: result.provider,
+          payload: { inputs, result: result.result },
+          riskLevel: isSensitiveCapability(result.capability) ? "HIGH" : "MEDIUM"
+        });
+        createdApprovalIds.push(approval.id);
+      }
 
       if (["executed", "needs_approval", "queued_manual"].includes(result.status)) {
         executed = true;
@@ -31,23 +61,24 @@ export async function routeAgentExecution(agentId: string, inputs: Record<string
     }
 
     if (!executed) {
-      executions.push({
+      const fallback: ToolResult = {
         status: "queued_manual",
         provider: "manual",
         capability,
         message: `No configured provider executed ${capability}. The action remains available for manual/provider follow-up.`
-      });
+      };
+      executions.push(fallback);
+      const run = await logAgentRun({ agentId, objective: inputs.objective || "", provider: fallback.provider, capability: fallback.capability, status: fallback.status, message: fallback.message });
+      createdRunIds.push(run.id);
     }
   }
 
   return {
     agent,
     executedAt: new Date().toISOString(),
-    providersChecked: providers.map(p => ({
-      name: p.name,
-      configured: p.isConfigured(),
-      capabilities: p.capabilities()
-    })),
+    createdRunIds,
+    createdApprovalIds,
+    providersChecked: providers.map(p => ({ name: p.name, configured: p.isConfigured(), capabilities: p.capabilities() })),
     executions,
     summary: {
       executed: executions.filter(r => r.status === "executed").length,
