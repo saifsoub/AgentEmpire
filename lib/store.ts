@@ -20,7 +20,7 @@ const DEFAULT_DB: DemoDb = {
 
 async function getBlobStore() {
   const { getStore } = await import("@netlify/blobs");
-  return getStore("personal-empire-os", { consistency: "strong" });
+  return getStore({ name: "personal-empire-os", consistency: "strong" });
 }
 
 async function readDb(): Promise<DemoDb> {
