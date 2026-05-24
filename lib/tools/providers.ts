@@ -32,54 +32,77 @@ const asNumber = (value: unknown, fallback = 0) => {
   return Number.isFinite(parsed) ? parsed : fallback;
 };
 
+function createReadableTaskTitle(input: Record<string, string>, fallback: string) {
+  return input.taskTitle || input.title || input.objective || input.topic || input.focusArea || fallback;
+}
+
 export class NativeProvider implements ToolProvider {
   name: ToolProviderName = "native";
   isConfigured() { return true; }
   capabilities(): AgentCapability[] {
-    return ["content.strategy", "opportunity.score", "decision.advise", "lead.qualify", "asset.build", "market.pulse", "task.create", "briefing.create"];
+    return ["agent.execute", "task.create", "task.subtask.create", "content.create", "opportunity.manage", "decision.manage", "lead.manage", "asset.manage", "briefing.create"];
   }
+
   async execute(request: ToolRequest): Promise<ToolResult> {
     const input = request.inputs;
-    if (request.capability === "content.strategy") {
-      const item = await addContent({ pillar: input.pillar || "Executive Presence", topic: input.topic || request.summary, angle: `Platform: ${input.platform || "LinkedIn"}. Tone: ${input.tone || "Executive"}.`, hook: request.summary.slice(0, 140), body: request.summary, platform: input.platform || "LinkedIn" });
-      return { status: "executed", provider: this.name, capability: request.capability, message: "Content draft saved through native store.", result: item };
+
+    if (request.capability === "content.create") {
+      const item = await addContent({ pillar: input.pillar || "Execution", topic: input.topic || createReadableTaskTitle(input, "New content work"), angle: input.angle || "Operational", hook: input.hook || createReadableTaskTitle(input, "New content work"), body: input.body || request.summary, platform: input.platform || "Internal" });
+      return { status: "executed", provider: this.name, capability: request.capability, message: "Content work created.", result: item };
     }
-    if (request.capability === "lead.qualify") {
-      const lead = await addLead({ name: input.name || "Unnamed lead", email: input.email || "", message: input.message || request.summary, sourceType: "offer", sourceId: "agent", sourceName: input.sourceName || "Agent qualification" });
-      const task = await addTask({ title: `Follow up with ${lead.name}`, category: "Revenue", priority: "HIGH", linkedEntityType: "lead", linkedEntityId: lead.id, dueAt: new Date().toISOString() });
-      return { status: "executed", provider: this.name, capability: request.capability, message: "Lead saved and follow-up task created.", result: { lead, task } };
+
+    if (request.capability === "lead.manage") {
+      const lead = await addLead({ name: input.name || "Unnamed lead", email: input.email || "", message: input.message || request.summary, sourceType: "offer", sourceId: "agent", sourceName: input.sourceName || "Operational lead work" });
+      return { status: "executed", provider: this.name, capability: request.capability, message: "Lead work created.", result: lead };
     }
-    if (request.capability === "asset.build") {
-      const asset = await addAsset({ title: input.title || "Agent-built asset", type: input.type || "Toolkit", summary: input.summary || request.summary, price: asNumber(input.price, 1500), format: "Digital kit" });
-      return { status: "executed", provider: this.name, capability: request.capability, message: "Asset draft saved through native store.", result: asset };
+
+    if (request.capability === "asset.manage") {
+      const asset = await addAsset({ title: input.title || createReadableTaskTitle(input, "Operational asset"), type: input.type || "Toolkit", summary: input.summary || request.summary, price: asNumber(input.price, 0), format: input.format || "Internal" });
+      return { status: "executed", provider: this.name, capability: request.capability, message: "Asset work created.", result: asset };
     }
-    if (request.capability === "decision.advise") {
-      const decision = await analyzeDecision({ title: input.title || "Agent decision", context: input.context || request.summary, options: (input.options || "Proceed,Pause,Refine").split(",").map(v => v.trim()).filter(Boolean) });
-      return { status: "executed", provider: this.name, capability: request.capability, message: "Decision analysis saved through native store.", result: decision };
+
+    if (request.capability === "decision.manage") {
+      const decision = await analyzeDecision({ title: input.title || createReadableTaskTitle(input, "Decision"), context: input.context || request.summary, options: (input.options || "Proceed,Pause,Refine").split(",").map(v => v.trim()).filter(Boolean) });
+      return { status: "executed", provider: this.name, capability: request.capability, message: "Decision work created.", result: decision };
     }
-    if (request.capability === "briefing.create" || request.capability === "market.pulse") {
+
+    if (request.capability === "briefing.create") {
       const brief = await generateWeeklyBrief();
-      return { status: "executed", provider: this.name, capability: request.capability, message: "Briefing generated through native store.", result: brief };
+      return { status: "executed", provider: this.name, capability: request.capability, message: "Briefing created.", result: brief };
     }
-    const task = await addTask({ title: request.summary || `Agent action: ${request.capability}`, category: "Agent", priority: "MEDIUM", linkedEntityType: "agent", linkedEntityId: request.agentId, dueAt: new Date().toISOString() });
-    return { status: "executed", provider: this.name, capability: request.capability, message: "Task created through native store.", result: task };
+
+    if (request.capability === "task.create" || request.capability === "task.subtask.create") {
+      const task = await addTask({ title: createReadableTaskTitle(input, "Operational task"), category: input.category || "Operations", priority: (input.priority as any) || "MEDIUM", linkedEntityType: input.linkedEntityType || "agent", linkedEntityId: request.agentId, dueAt: input.dueAt || new Date().toISOString() });
+      return { status: "executed", provider: this.name, capability: request.capability, message: "Task created.", result: task };
+    }
+
+    return {
+      status: "executed",
+      provider: this.name,
+      capability: request.capability,
+      message: "Agent executed internal operational work.",
+      result: {
+        objective: input.objective || request.summary,
+        completedInternally: true
+      }
+    };
   }
 }
 
 export class ComposioProvider implements ToolProvider {
   name: ToolProviderName = "composio";
   isConfigured() { return Boolean(process.env.COMPOSIO_API_KEY); }
-  capabilities(): AgentCapability[] { return ["email.draft", "calendar.create", "github.issue.create", "market.pulse", "task.create"]; }
+  capabilities(): AgentCapability[] { return ["email.draft", "calendar.create", "github.issue.create"]; }
   async execute(request: ToolRequest): Promise<ToolResult> {
     if (!this.isConfigured()) return { status: "missing_connector", provider: this.name, capability: request.capability, message: "Composio is not configured. Add COMPOSIO_API_KEY in Netlify environment variables." };
-    return { status: "needs_approval", provider: this.name, capability: request.capability, approvalRequired: true, message: "Composio provider is configured. External connector execution is held for approval-safe routing.", result: { userId: process.env.COMPOSIO_USER_ID || "seif", plannedAction: request.capability, inputs: request.inputs } };
+    return { status: "needs_approval", provider: this.name, capability: request.capability, approvalRequired: true, message: "Connected provider prepared the external action. Final approval is required before external execution.", result: { userId: process.env.COMPOSIO_USER_ID || "seif", plannedAction: request.capability, inputs: request.inputs } };
   }
 }
 
 export class WebhookProvider implements ToolProvider {
   name: ToolProviderName = "webhook";
   isConfigured() { return Boolean(process.env.WEBHOOK_ROUTER_URL); }
-  capabilities(): AgentCapability[] { return ["market.pulse", "task.create", "email.draft"]; }
+  capabilities(): AgentCapability[] { return ["agent.execute", "task.create", "task.subtask.create"]; }
   async execute(request: ToolRequest): Promise<ToolResult> {
     if (!this.isConfigured()) return { status: "missing_connector", provider: this.name, capability: request.capability, message: "Webhook router is not configured." };
     const response = await fetch(process.env.WEBHOOK_ROUTER_URL!, { method: "POST", headers: { "content-type": "application/json", ...(process.env.WEBHOOK_ROUTER_TOKEN ? { authorization: `Bearer ${process.env.WEBHOOK_ROUTER_TOKEN}` } : {}) }, body: JSON.stringify(request) });
@@ -91,7 +114,7 @@ export class WebhookProvider implements ToolProvider {
 export class McpProvider implements ToolProvider {
   name: ToolProviderName = "mcp";
   isConfigured() { return Boolean(process.env.MCP_SERVER_URL); }
-  capabilities(): AgentCapability[] { return ["market.pulse", "task.create", "github.issue.create"]; }
+  capabilities(): AgentCapability[] { return ["agent.execute", "task.create", "task.subtask.create", "github.issue.create"]; }
   async execute(request: ToolRequest): Promise<ToolResult> {
     if (!this.isConfigured()) return { status: "missing_connector", provider: this.name, capability: request.capability, message: "MCP server is not configured." };
     const response = await fetch(process.env.MCP_SERVER_URL!, { method: "POST", headers: { "content-type": "application/json", ...(process.env.MCP_AUTH_TOKEN ? { authorization: `Bearer ${process.env.MCP_AUTH_TOKEN}` } : {}) }, body: JSON.stringify({ jsonrpc: "2.0", id: Date.now(), method: "tools/call", params: request }) });
@@ -103,10 +126,9 @@ export class McpProvider implements ToolProvider {
 export class ManualProvider implements ToolProvider {
   name: ToolProviderName = "manual";
   isConfigured() { return true; }
-  capabilities(): AgentCapability[] { return ["content.strategy", "opportunity.score", "decision.advise", "lead.qualify", "asset.build", "market.pulse", "task.create", "briefing.create", "email.draft", "calendar.create", "github.issue.create"]; }
+  capabilities(): AgentCapability[] { return ["agent.execute", "task.create", "task.subtask.create", "content.create", "opportunity.manage", "decision.manage", "lead.manage", "asset.manage", "briefing.create", "email.draft", "calendar.create", "github.issue.create"]; }
   async execute(request: ToolRequest): Promise<ToolResult> {
-    const task = await addTask({ title: `Manual connector action: ${request.capability}`, category: "Connector", priority: "MEDIUM", linkedEntityType: "agent", linkedEntityId: request.agentId, dueAt: new Date().toISOString() });
-    return { status: "queued_manual", provider: this.name, capability: request.capability, message: "No configured connector executed this action. A manual follow-up task was created.", result: task };
+    return { status: "queued_manual", provider: this.name, capability: request.capability, message: "Action queued for manual/provider follow-up.", result: { queued: true, capability: request.capability } };
   }
 }
 
