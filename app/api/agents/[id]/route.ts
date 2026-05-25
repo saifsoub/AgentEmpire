@@ -1,26 +1,23 @@
 import { NextResponse } from "next/server";
-import { getAgent, updateAgent, deleteAgent } from "@/lib/store";
+import { archiveAgent, updateAgent } from "@/lib/store";
 
-export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const agent = await getAgent(id);
-  if (!agent) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  return NextResponse.json(agent);
-}
-
-export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const body = await req.json();
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
+    const body = await request.json();
     const agent = await updateAgent(id, body);
-    return NextResponse.json(agent);
-  } catch {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return NextResponse.json({ ok: true, agent });
+  } catch (error) {
+    return NextResponse.json({ ok: false, error: error instanceof Error ? error.message : "Failed to update agent" }, { status: 500 });
   }
 }
 
-export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  await deleteAgent(id);
-  return NextResponse.json({ ok: true });
+export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params;
+    const agent = await archiveAgent(id);
+    return NextResponse.json({ ok: true, agent });
+  } catch (error) {
+    return NextResponse.json({ ok: false, error: error instanceof Error ? error.message : "Failed to archive agent" }, { status: 500 });
+  }
 }

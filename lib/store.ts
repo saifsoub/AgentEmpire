@@ -1,105 +1,47 @@
-import fs from "node:fs/promises";
-import path from "node:path";
-import { DemoDb, EmpireSettings, AgentConfig, AgentToolDef, AgentInputField } from "@/lib/types";
+import { DemoDb, EmpireSettings, StoredAgent } from "@/lib/types";
 import { computeOpportunityScore, computeEmpireScore } from "@/lib/scoring";
 import { average } from "@/lib/utils";
-const dbPath = path.join(process.cwd(), "data", "demo-db.json");
-async function readDb(): Promise<DemoDb> { return JSON.parse(await fs.readFile(dbPath, "utf-8")) as DemoDb; }
-async function writeDb(data: DemoDb) { await fs.writeFile(dbPath, JSON.stringify(data, null, 2)); }
+import { DEFAULT_AGENTS } from "@/lib/agents/definitions";
+
+const DB_KEY = "demo-db";
+const DEFAULT_DB: DemoDb = { opportunities: [], offers: [], contentItems: [], assets: [], decisions: [], briefings: [], lifestyle: [], tasks: [], leads: [], agents: [], agentRuns: [], approvals: [] };
+async function getBlobStore() { const { getStore } = await import("@netlify/blobs"); return getStore({ name: "personal-empire-os", consistency: "strong" }); }
+async function readDb(): Promise<DemoDb> { try { const store = await getBlobStore(); const existing = await store.get(DB_KEY, { type: "json" }); return { ...DEFAULT_DB, ...(existing || {}) } as DemoDb; } catch { return { ...DEFAULT_DB }; } }
+async function writeDb(data: DemoDb) { try { const store = await getBlobStore(); await store.setJSON(DB_KEY, data); } catch {} }
 const now = () => new Date().toISOString();
 const id = (prefix: string) => `${prefix}_${Math.random().toString(36).slice(2, 10)}`;
+const normalize = (value: string) => value.trim().toLowerCase().replace(/\s+/g, " ");
+const isTechnicalAgentNoise = (title: string) => /execution for|manual connector action|operational execution|available connectors|check my available connectors|check the available connectors|you check the available connectors/i.test(title);
+const cleanTasksInMemory = (db: DemoDb) => { const seen = new Set<string>(); const before = db.tasks.length; db.tasks = db.tasks.filter(task => { if (isTechnicalAgentNoise(task.title)) return false; const key = normalize(task.title); if (seen.has(key)) return false; seen.add(key); return true; }); return before - db.tasks.length; };
+const starterAgents = (): StoredAgent[] => DEFAULT_AGENTS.map(agent => ({ id: agent.id, name: agent.name, description: agent.description, instructions: agent.instructions, selectedTools: agent.selectedTools, preferredProviders: agent.preferredProviders, approvalPolicy: agent.approvalPolicy, enabled: agent.enabled, createdAt: now(), updatedAt: now() }));
+
 export async function getDb() { return readDb(); }
-export async function getDashboardSummary() {
-  const db = await readDb();
-  const revenueScore = Math.min(db.opportunities.filter(o => o.totalScore >= 75).length * 18 + db.offers.filter(o => o.status === "LIVE").length * 10, 100);
-  const brandScore = Math.min(db.contentItems.filter(c => c.status === "PUBLISHED").length * 12 + average(db.contentItems.map(c => Math.min(c.engagements / 3, 20))), 100);
-  const assetScore = Math.min(db.assets.filter(a => ["PRODUCTIZED", "PUBLISHED", "MONETIZED"].includes(a.status)).length * 20, 100);
-  const decisionScore = Math.min(average(db.decisions.map(d => d.impactScore)) || 72, 100);
-  const executionScore = Math.min(db.tasks.filter(t => t.status === "DONE").length * 14, 100);
-  const lifestyleAlignmentScore = Math.min(average(db.lifestyle.map(l => l.roi)) || 78, 100);
-  const empireScore = computeEmpireScore({ revenueScore, brandScore, assetScore, decisionScore, executionScore, lifestyleAlignmentScore });
-  return { empireScore, revenueScore, brandScore, assetScore, decisionScore, executionScore, lifestyleAlignmentScore, topOpportunities: [...db.opportunities].sort((a,b)=>b.totalScore-a.totalScore).slice(0,5), liveOffers: db.offers.filter(o=>o.status==="LIVE").length, monetizedAssets: db.assets.filter(a=>a.status==="MONETIZED").length, weeklyFocus: db.briefings[0]?.topMoves ?? [] };
-}
-export async function addOpportunity(input: { title: string; description: string; type: string; source: string; expectedRevenue: number; nextAction: string; dueDate: string; }) {
-  const db = await readDb();
-  const revenuePotential = Math.min(Math.round(input.expectedRevenue / 500), 100);
-  const fit = 82, strategicPrestige = input.type.toLowerCase().includes("advis") ? 88 : 72, urgency = input.dueDate ? 74 : 52, reusability = 78, speedToLaunch = 70, compoundingPotential = 80;
-  const totalScore = computeOpportunityScore({ fit, revenuePotential, strategicPrestige, urgency, reusability, speedToLaunch, compoundingPotential });
-  const item = { id: id("opp"), title: input.title, description: input.description, type: input.type, source: input.source, status: "IDEA" as const, expectedRevenue: input.expectedRevenue, confidenceScore: 70, fitScore: fit, urgencyScore: urgency, prestigeScore: strategicPrestige, effortScore: 45, reusabilityScore: reusability, speedToLaunchScore: speedToLaunch, compoundingScore: compoundingPotential, totalScore, nextAction: input.nextAction || "Validate and package", dueDate: input.dueDate, createdAt: now(), updatedAt: now() };
-  db.opportunities.unshift(item); await writeDb(db); return item;
-}
-export async function addOffer(input: { name: string; audience: string; problem: string; promise: string; pricingModel: string; priceMin: number; priceMax: number; ctaUrl: string; }) {
-  const db = await readDb();
-  const item = { id: id("offer"), name: input.name, audience: input.audience, problem: input.problem, promise: input.promise, pricingModel: input.pricingModel, priceMin: input.priceMin, priceMax: input.priceMax, status: "DRAFT" as const, ctaUrl: input.ctaUrl, deliverables: ["Discovery","Framework","Executive memo"], createdAt: now(), updatedAt: now() };
-  db.offers.unshift(item); await writeDb(db); return item;
-}
-export async function addContent(input: { pillar: string; topic: string; angle: string; hook: string; body: string; platform: string; }) {
-  const db = await readDb();
-  const item = { id: id("content"), pillar: input.pillar, topic: input.topic, angle: input.angle, hook: input.hook, body: input.body, platform: input.platform, status: "DRAFT" as const, scheduledFor: "", publishedAt: "", views: 0, engagements: 0, clicks: 0, leads: 0, createdAt: now(), updatedAt: now() };
-  db.contentItems.unshift(item); await writeDb(db); return item;
-}
-export async function addAsset(input: { title: string; type: string; summary: string; price: number; format: string; buyUrl?: string; }) {
-  const db = await readDb();
-  const item = { id: id("asset"), title: input.title, type: input.type, summary: input.summary, status: "DRAFT" as const, price: input.price, format: input.format, salesCopy: "Premium asset built to convert expertise into monetizable IP.", buyUrl: input.buyUrl ?? "", createdAt: now(), updatedAt: now() };
-  db.assets.unshift(item); await writeDb(db); return item;
-}
-export async function analyzeDecision(input: { title: string; context: string; options: string[]; }) {
-  const db = await readDb();
-  const winner = input.options[0];
-  const item = { id: id("decision"), title: input.title, context: input.context, options: input.options, recommendedOption: winner, reasoningSummary: `Prioritize "${winner}" because it offers the strongest blend of speed, strategic fit, and compounding value.`, riskLevel: "Medium", impactScore: 88, reversibilityScore: 74, status: "READY", createdAt: now(), updatedAt: now() };
-  db.decisions.unshift(item); await writeDb(db); return item;
-}
-export async function addLead(input: { name: string; email: string; message: string; sourceType: "offer" | "asset"; sourceId: string; sourceName: string; }) {
-  const db = await readDb();
-  if (!db.leads) db.leads = [];
-  const item = { id: id("lead"), name: input.name, email: input.email, message: input.message, sourceType: input.sourceType, sourceId: input.sourceId, sourceName: input.sourceName, status: "NEW" as const, createdAt: now() };
-  db.leads.unshift(item); await writeDb(db); return item;
-}
+export async function getAgents() { const db = await readDb(); if (!db.agents?.length) { db.agents = starterAgents(); await writeDb(db); } return db.agents; }
+export async function getAgent(agentId: string) { const agents = await getAgents(); return agents.find(agent => agent.id === agentId) ?? agents[0]; }
+export async function createAgent(input: Partial<StoredAgent>) { const db = await readDb(); const item: StoredAgent = { id: id("agent"), name: input.name || "New Agent", description: input.description || "Custom operational agent", instructions: input.instructions || "Do useful internal work. Create tasks/subtasks when needed. Ask approval only for sensitive external actions.", selectedTools: input.selectedTools?.length ? input.selectedTools : ["agent.execute", "task.create", "task.subtask.create"], preferredProviders: input.preferredProviders?.length ? input.preferredProviders : ["native", "composio", "mcp", "webhook", "manual"], approvalPolicy: input.approvalPolicy?.length ? input.approvalPolicy : ["external_send", "publish", "payment", "commitment", "delete", "spend_money"], enabled: input.enabled ?? true, createdAt: now(), updatedAt: now() }; db.agents = [item, ...(db.agents ?? [])]; await writeDb(db); return item; }
+export async function updateAgent(agentId: string, input: Partial<StoredAgent>) { const db = await readDb(); db.agents = db.agents?.length ? db.agents : starterAgents(); const index = db.agents.findIndex(agent => agent.id === agentId); if (index < 0) throw new Error("Agent not found"); db.agents[index] = { ...db.agents[index], ...input, updatedAt: now() }; await writeDb(db); return db.agents[index]; }
+export async function archiveAgent(agentId: string) { return updateAgent(agentId, { enabled: false }); }
+export async function logAgentRun(input: { agentId: string; objective: string; provider: string; capability: string; status: string; message: string; createdTasks?: string[]; approvalItems?: string[] }) { const db = await readDb(); const item = { id: id("run"), ...input, createdAt: now() }; db.agentRuns = [item, ...(db.agentRuns ?? [])].slice(0, 100); await writeDb(db); return item; }
+export async function getAgentRuns() { const db = await readDb(); return db.agentRuns ?? []; }
+export async function createApproval(input: { source: string; action: string; provider?: string; payload?: unknown; riskLevel?: "LOW" | "MEDIUM" | "HIGH" }) { const db = await readDb(); const item = { id: id("approval"), source: input.source, action: input.action, provider: input.provider, payload: input.payload, riskLevel: input.riskLevel ?? "MEDIUM", status: "PENDING" as const, createdAt: now(), updatedAt: now() }; db.approvals = [item, ...(db.approvals ?? [])]; await writeDb(db); return item; }
+export async function getApprovals() { const db = await readDb(); return db.approvals ?? []; }
+export async function updateApproval(approvalId: string, status: "PENDING" | "APPROVED" | "REJECTED", payload?: unknown) { const db = await readDb(); const approval = (db.approvals ?? []).find(item => item.id === approvalId); if (!approval) throw new Error("Approval not found"); approval.status = status; approval.payload = payload ?? approval.payload; approval.updatedAt = now(); await writeDb(db); return approval; }
+export async function cleanupAgentTaskNoise() { const db = await readDb(); const removed = cleanTasksInMemory(db); await writeDb(db); return { removed, remaining: db.tasks.length }; }
+export async function findMatchingActiveTask(objective: string) { const db = await readDb(); cleanTasksInMemory(db); const target = normalize(objective || ""); if (!target) return null; const match = db.tasks.find(task => !["DONE", "CANCELED"].includes(task.status) && (normalize(task.title) === target || target.includes(normalize(task.title)) || normalize(task.title).includes(target))); if (match) await writeDb(db); return match ?? null; }
+export async function closeMatchedTask(taskId: string, outcome: "DONE" | "WAITING_APPROVAL" | "BLOCKED", note?: string) { const db = await readDb(); const task = db.tasks.find(t => t.id === taskId); if (!task) return null; task.status = outcome; task.updatedAt = now(); task.completedAt = outcome === "DONE" ? now() : task.completedAt; task.blockedReason = outcome === "BLOCKED" ? note || "Agent execution could not complete this task." : task.blockedReason; task.approvalRequired = outcome === "WAITING_APPROVAL" ? true : task.approvalRequired; await writeDb(db); return task; }
+
+export async function getDashboardSummary() { const db = await readDb(); const revenueScore = Math.min(db.opportunities.filter(o => o.totalScore >= 75).length * 18 + db.offers.filter(o => o.status === "LIVE").length * 10, 100); const brandScore = Math.min(db.contentItems.filter(c => c.status === "PUBLISHED").length * 12 + average(db.contentItems.map(c => Math.min(c.engagements / 3, 20))), 100); const assetScore = Math.min(db.assets.filter(a => ["PRODUCTIZED", "PUBLISHED", "MONETIZED"].includes(a.status)).length * 20, 100); const decisionScore = Math.min(average(db.decisions.map(d => d.impactScore)) || 72, 100); const executionScore = Math.min(db.tasks.filter(t => t.status === "DONE").length * 14, 100); const lifestyleAlignmentScore = Math.min(average(db.lifestyle.map(l => l.roi)) || 78, 100); const empireScore = computeEmpireScore({ revenueScore, brandScore, assetScore, decisionScore, executionScore, lifestyleAlignmentScore }); return { empireScore, revenueScore, brandScore, assetScore, decisionScore, executionScore, lifestyleAlignmentScore, topOpportunities: [...db.opportunities].sort((a,b)=>b.totalScore-a.totalScore).slice(0,5), liveOffers: db.offers.filter(o=>o.status==="LIVE").length, monetizedAssets: db.assets.filter(a=>a.status==="MONETIZED").length, weeklyFocus: db.briefings[0]?.topMoves ?? [] }; }
+export async function addOpportunity(input: { title: string; description: string; type: string; source: string; expectedRevenue: number; nextAction: string; dueDate: string; }) { const db = await readDb(); const revenuePotential = Math.min(Math.round(input.expectedRevenue / 500), 100); const fit = 82, strategicPrestige = input.type.toLowerCase().includes("advis") ? 88 : 72, urgency = input.dueDate ? 74 : 52, reusability = 78, speedToLaunch = 70, compoundingPotential = 80; const totalScore = computeOpportunityScore({ fit, revenuePotential, strategicPrestige, urgency, reusability, speedToLaunch, compoundingPotential }); const item = { id: id("opp"), title: input.title, description: input.description, type: input.type, source: input.source, status: "IDEA" as const, expectedRevenue: input.expectedRevenue, confidenceScore: 70, fitScore: fit, urgencyScore: urgency, prestigeScore: strategicPrestige, effortScore: 45, reusabilityScore: reusability, speedToLaunchScore: speedToLaunch, compoundingScore: compoundingPotential, totalScore, nextAction: input.nextAction || "Validate and package", dueDate: input.dueDate, createdAt: now(), updatedAt: now() }; db.opportunities.unshift(item); await writeDb(db); return item; }
+export async function addOffer(input: { name: string; audience: string; problem: string; promise: string; pricingModel: string; priceMin: number; priceMax: number; ctaUrl: string; }) { const db = await readDb(); const item = { id: id("offer"), name: input.name, audience: input.audience, problem: input.problem, promise: input.promise, pricingModel: input.pricingModel, priceMin: input.priceMin, priceMax: input.priceMax, status: "DRAFT" as const, ctaUrl: input.ctaUrl, deliverables: ["Discovery","Framework","Executive memo"], createdAt: now(), updatedAt: now() }; db.offers.unshift(item); await writeDb(db); return item; }
+export async function addContent(input: { pillar: string; topic: string; angle: string; hook: string; body: string; platform: string; }) { const db = await readDb(); const item = { id: id("content"), pillar: input.pillar, topic: input.topic, angle: input.angle, hook: input.hook, body: input.body, platform: input.platform, status: "DRAFT" as const, scheduledFor: "", publishedAt: "", views: 0, engagements: 0, clicks: 0, leads: 0, createdAt: now(), updatedAt: now() }; db.contentItems.unshift(item); await writeDb(db); return item; }
+export async function addAsset(input: { title: string; type: string; summary: string; price: number; format: string; buyUrl?: string; }) { const db = await readDb(); const item = { id: id("asset"), title: input.title, type: input.type, summary: input.summary, status: "DRAFT" as const, price: input.price, format: input.format, salesCopy: "Premium asset built to convert expertise into monetizable IP.", buyUrl: input.buyUrl ?? "", createdAt: now(), updatedAt: now() }; db.assets.unshift(item); await writeDb(db); return item; }
+export async function analyzeDecision(input: { title: string; context: string; options: string[]; }) { const db = await readDb(); const winner = input.options[0]; const item = { id: id("decision"), title: input.title, context: input.context, options: input.options, recommendedOption: winner, reasoningSummary: `Prioritize "${winner}" because it offers the strongest blend of speed, strategic fit, and compounding value.`, riskLevel: "Medium", impactScore: 88, reversibilityScore: 74, status: "READY", createdAt: now(), updatedAt: now() }; db.decisions.unshift(item); await writeDb(db); return item; }
+export async function addLead(input: { name: string; email: string; message: string; sourceType: "offer" | "asset"; sourceId: string; sourceName: string; }) { const db = await readDb(); const item = { id: id("lead"), name: input.name, email: input.email, message: input.message, sourceType: input.sourceType, sourceId: input.sourceId, sourceName: input.sourceName, status: "NEW" as const, createdAt: now() }; db.leads.unshift(item); await writeDb(db); return item; }
 export async function getLeads() { const db = await readDb(); return db.leads ?? []; }
-export async function getTasks() { const db = await readDb(); return db.tasks ?? []; }
-export async function addTask(input: { title: string; category: string; priority: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL"; linkedEntityType: string; linkedEntityId: string; dueAt: string; }) {
-  const db = await readDb();
-  if (!db.tasks) db.tasks = [];
-  const item = { id: id("task"), title: input.title, category: input.category, priority: input.priority, status: "TODO" as const, linkedEntityType: input.linkedEntityType, linkedEntityId: input.linkedEntityId, dueAt: input.dueAt, createdAt: now(), updatedAt: now() };
-  db.tasks.unshift(item); await writeDb(db); return item;
-}
-export async function updateTaskStatus(taskId: string, status: "TODO" | "IN_PROGRESS" | "DONE" | "CANCELED") {
-  const db = await readDb();
-  const task = db.tasks.find(t => t.id === taskId);
-  if (!task) throw new Error("Task not found");
-  task.status = status; task.updatedAt = now();
-  await writeDb(db); return task;
-}
+export async function getTasks() { const db = await readDb(); const removed = cleanTasksInMemory(db); if (removed > 0) await writeDb(db); return db.tasks ?? []; }
+export async function addTask(input: { title: string; category: string; priority: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL"; linkedEntityType: string; linkedEntityId: string; dueAt: string; parentTaskId?: string; ownerAgentId?: string; sourceRunId?: string; approvalRequired?: boolean; }) { const db = await readDb(); const cleanTitle = input.title.trim(); if (isTechnicalAgentNoise(cleanTitle)) return { id: "skipped_noise", title: cleanTitle, category: input.category, priority: input.priority, status: "CANCELED" as const, linkedEntityType: input.linkedEntityType, linkedEntityId: input.linkedEntityId, dueAt: input.dueAt, createdAt: now(), updatedAt: now() }; const existing = db.tasks.find(t => normalize(t.title) === normalize(cleanTitle) && t.status !== "DONE" && t.status !== "CANCELED"); if (existing) return existing; const item = { id: id("task"), title: cleanTitle, category: input.category, priority: input.priority, status: "TODO" as const, linkedEntityType: input.linkedEntityType, linkedEntityId: input.linkedEntityId, dueAt: input.dueAt, parentTaskId: input.parentTaskId, ownerAgentId: input.ownerAgentId, sourceRunId: input.sourceRunId, approvalRequired: input.approvalRequired, createdAt: now(), updatedAt: now() }; db.tasks.unshift(item); await writeDb(db); return item; }
+export async function updateTaskStatus(taskId: string, status: "TODO" | "IN_PROGRESS" | "WAITING_APPROVAL" | "BLOCKED" | "DONE" | "CANCELED") { const db = await readDb(); const task = db.tasks.find(t => t.id === taskId); if (!task) throw new Error("Task not found"); task.status = status; task.updatedAt = now(); task.completedAt = status === "DONE" ? now() : task.completedAt; await writeDb(db); return task; }
 const DEFAULT_SETTINGS: EmpireSettings = { empireName: "Personal Empire", ownerName: "", currency: "AED", timezone: "Asia/Dubai", primaryMarket: "", weekStartsOn: "monday" };
 export async function getSettings() { const db = await readDb(); return db.settings ?? DEFAULT_SETTINGS; }
-export async function updateSettings(input: Partial<EmpireSettings>) {
-  const db = await readDb();
-  db.settings = { ...DEFAULT_SETTINGS, ...db.settings, ...input };
-  await writeDb(db); return db.settings;
-}
-export async function generateWeeklyBrief() {
-  const db = await readDb();
-  const top = [...db.opportunities].sort((a,b)=>b.totalScore-a.totalScore).slice(0,3);
-  const item = { id: id("brief"), weekStart: new Date().toISOString().slice(0,10), weekObjective: "Turn one high-value idea into a monetizable asset and publish two authority signals.", topMoves: [`Package ${top[0]?.title ?? "your top opportunity"} into a clear offer`, "Publish 2 authority posts linked to a real offer", "Convert one existing framework into a premium downloadable asset"], risks: ["Over-splitting focus", "Packaging too late", "Posting without clear CTA"], focusAreas: ["Revenue", "Brand", "Assets"], reviewNotes: "Keep this week brutally focused on leverage and conversion.", status: "READY", createdAt: now(), updatedAt: now() };
-  db.briefings.unshift(item); db.briefings = db.briefings.slice(0,8); await writeDb(db); return item;
-}
-export async function getAgents(): Promise<AgentConfig[]> { const db = await readDb(); return db.agents ?? []; }
-export async function getAgent(agentId: string): Promise<AgentConfig | undefined> { const db = await readDb(); return (db.agents ?? []).find(a => a.id === agentId); }
-export async function addAgent(input: { name: string; description: string; icon: string; category: string; systemPrompt: string; userMessageTemplate: string; tools: AgentToolDef[]; inputFields: AgentInputField[]; }): Promise<AgentConfig> {
-  const db = await readDb();
-  if (!db.agents) db.agents = [];
-  const item: AgentConfig = { id: id("agent"), name: input.name, description: input.description, icon: input.icon, category: input.category, systemPrompt: input.systemPrompt, userMessageTemplate: input.userMessageTemplate, tools: input.tools, inputFields: input.inputFields, status: "active", builtIn: false, createdAt: now(), updatedAt: now() };
-  db.agents.unshift(item); await writeDb(db); return item;
-}
-export async function updateAgent(agentId: string, input: Partial<Pick<AgentConfig, "name" | "description" | "icon" | "category" | "systemPrompt" | "userMessageTemplate" | "tools" | "inputFields" | "status">>): Promise<AgentConfig> {
-  const db = await readDb();
-  const agent = (db.agents ?? []).find(a => a.id === agentId);
-  if (!agent) throw new Error("Agent not found");
-  Object.assign(agent, input, { updatedAt: now() });
-  await writeDb(db); return agent;
-}
-export async function deleteAgent(agentId: string): Promise<void> {
-  const db = await readDb();
-  db.agents = (db.agents ?? []).filter(a => a.id !== agentId);
-  await writeDb(db);
-}
+export async function updateSettings(input: Partial<EmpireSettings>) { const db = await readDb(); db.settings = { ...DEFAULT_SETTINGS, ...db.settings, ...input }; await writeDb(db); return db.settings; }
+export async function generateWeeklyBrief() { const db = await readDb(); const top = [...db.opportunities].sort((a,b)=>b.totalScore-a.totalScore).slice(0,3); const item = { id: id("brief"), weekStart: new Date().toISOString().slice(0,10), weekObjective: "Turn one high-value idea into a monetizable asset and publish two authority signals.", topMoves: [`Package ${top[0]?.title ?? "your top opportunity"} into a clear offer`, "Publish 2 authority posts linked to a real offer", "Convert one existing framework into a premium downloadable asset"], risks: ["Over-splitting focus", "Packaging too late", "Posting without clear CTA"], focusAreas: ["Revenue", "Brand", "Assets"], reviewNotes: "Keep this week focused on leverage and conversion.", status: "READY", createdAt: now(), updatedAt: now() }; db.briefings.unshift(item); db.briefings = db.briefings.slice(0,8); await writeDb(db); return item; }

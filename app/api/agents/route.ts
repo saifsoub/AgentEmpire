@@ -1,13 +1,21 @@
 import { NextResponse } from "next/server";
-import { getAgents, addAgent } from "@/lib/store";
+import { createAgent, getAgents } from "@/lib/store";
 
 export async function GET() {
-  const agents = await getAgents();
-  return NextResponse.json(agents);
+  try {
+    const agents = await getAgents();
+    return NextResponse.json({ ok: true, agents });
+  } catch (error) {
+    return NextResponse.json({ ok: false, error: error instanceof Error ? error.message : "Failed to load agents" }, { status: 500 });
+  }
 }
 
-export async function POST(req: Request) {
-  const body = await req.json();
-  const agent = await addAgent(body);
-  return NextResponse.json(agent, { status: 201 });
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const agent = await createAgent(body);
+    return NextResponse.json({ ok: true, agent });
+  } catch (error) {
+    return NextResponse.json({ ok: false, error: error instanceof Error ? error.message : "Failed to create agent" }, { status: 500 });
+  }
 }
