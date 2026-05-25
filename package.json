@@ -1,7 +1,12 @@
 {
-  "name": "personal-empire-os",
+  "name": "agent-empire",
   "version": "1.0.0",
+  "description": "Personal Empire OS — operator cockpit for the S/ stack (DoneAi, Shopify, agents)",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/saifsoub/AgentEmpire.git"
+  },
   "scripts": {
     "dev": "next dev -p 7483",
     "build": "next build",
