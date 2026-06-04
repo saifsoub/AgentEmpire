@@ -96,7 +96,7 @@ async function fetchSymbol(symbol: string): Promise<MarketIndicator | null> {
     const change = price - prevClose;
     const changePercent = prevClose !== 0 ? (change / prevClose) * 100 : 0;
     const volume = meta.regularMarketVolume ?? 0;
-    const avgVolume = meta.averageDailyVolume3Month ?? volume || 1;
+    const avgVolume = (meta.averageDailyVolume3Month ?? volume) || 1;
     const volumeRatio = avgVolume > 0 ? volume / avgVolume : 1;
 
     const highs = (quote.high ?? []).filter((v): v is number => v != null);
