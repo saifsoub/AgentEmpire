@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BarChart3, BriefcaseBusiness, Car, CheckSquare, FileChartColumn, FileStack, FileText, LayoutDashboard, Settings, ShieldCheck, Users, Wallet, Zap, Bot } from "lucide-react";
+import { BarChart3, Bot, BriefcaseBusiness, Car, CheckSquare, FileChartColumn, FileStack, FileText, LayoutDashboard, Settings, ShieldCheck, Users, Wallet, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 const items = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
