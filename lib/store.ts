@@ -2,12 +2,30 @@ import { DemoDb, EmpireSettings, StarAcademyAgent, StoredAgent } from "@/lib/typ
 import { computeOpportunityScore, computeEmpireScore } from "@/lib/scoring";
 import { average } from "@/lib/utils";
 import { DEFAULT_AGENTS } from "@/lib/agents/definitions";
+import { readFileSync, writeFileSync, mkdirSync } from "fs";
+import { join } from "path";
 
 const DB_KEY = "demo-db";
 const DEFAULT_DB: DemoDb = { opportunities: [], offers: [], contentItems: [], assets: [], decisions: [], briefings: [], lifestyle: [], tasks: [], leads: [], agents: [], agentRuns: [], approvals: [] };
-async function getBlobStore() { const { getStore } = await import("@netlify/blobs"); return getStore({ name: "personal-empire-os", consistency: "strong" }); }
-async function readDb(): Promise<DemoDb> { try { const store = await getBlobStore(); const existing = await store.get(DB_KEY, { type: "json" }); return { ...DEFAULT_DB, ...(existing || {}) } as DemoDb; } catch { return { ...DEFAULT_DB }; } }
-async function writeDb(data: DemoDb) { try { const store = await getBlobStore(); await store.setJSON(DB_KEY, data); } catch {} }
+
+function getDbPath(): string {
+  const dir = process.env.DATA_DIR || join(process.cwd(), "data");
+  try { mkdirSync(dir, { recursive: true }); } catch {}
+  return join(dir, `${DB_KEY}.json`);
+}
+
+async function readDb(): Promise<DemoDb> {
+  try {
+    const raw = readFileSync(getDbPath(), "utf-8");
+    return { ...DEFAULT_DB, ...JSON.parse(raw) } as DemoDb;
+  } catch {
+    return { ...DEFAULT_DB };
+  }
+}
+
+async function writeDb(data: DemoDb) {
+  try { writeFileSync(getDbPath(), JSON.stringify(data, null, 2), "utf-8"); } catch {}
+}
 const now = () => new Date().toISOString();
 const id = (prefix: string) => `${prefix}_${Math.random().toString(36).slice(2, 10)}`;
 const normalize = (value: string) => value.trim().toLowerCase().replace(/\s+/g, " ");
