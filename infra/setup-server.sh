@@ -1,29 +1,27 @@
 #!/bin/bash
-# First-time server setup for Ubuntu/Debian on Hostinger KVM2
-# Run as root: bash infra/setup-server.sh
+# First-time setup for Hostinger KVM2 (Ubuntu 24.04, Docker pre-installed)
+# Run as root from the project root: bash infra/setup-server.sh
 
 set -e
 
-echo "==> Installing Node.js 20 via nvm..."
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-export NVM_DIR="$HOME/.nvm"
-source "$NVM_DIR/nvm.sh"
-nvm install 20
-nvm use 20
-nvm alias default 20
+echo "==> Verifying Docker is running..."
+docker info > /dev/null 2>&1 || { echo "Docker not running. Start it: systemctl start docker"; exit 1; }
 
-echo "==> Installing PM2..."
-npm install -g pm2
-pm2 startup
+echo "==> Creating Traefik network (if not exists)..."
+docker network create traefik 2>/dev/null || echo "  traefik network already exists"
 
-echo "==> Installing nginx..."
-apt-get update -y
-apt-get install -y nginx
+echo "==> Creating .env.local from example..."
+if [ ! -f .env.local ]; then
+  cp .env.example .env.local
+  echo "  Created .env.local — FILL IN YOUR API KEYS before continuing"
+  echo "  Edit with: nano .env.local"
+  exit 0
+fi
 
-echo "==> Configuring nginx..."
-cp /root/AgentEmpire/infra/nginx.conf /etc/nginx/sites-available/agent-empire
-ln -sf /etc/nginx/sites-available/agent-empire /etc/nginx/sites-enabled/agent-empire
-rm -f /etc/nginx/sites-enabled/default
-nginx -t && systemctl reload nginx
+echo "==> Launching app..."
+bash infra/deploy.sh
 
-echo "==> Setup complete. Now run: bash infra/deploy.sh"
+echo ""
+echo "==> Setup complete!"
+echo "    App: http://srv1446443.hstgr.cloud"
+echo "    Logs: docker compose logs -f agent-empire"
