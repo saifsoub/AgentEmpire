@@ -209,11 +209,12 @@ export function CityMap() {
     addEvent('Action approved by operator', 'completed', 'approval', pending.summary);
     if (mode === 'live') {
       try {
-        await fetch(`/api/approvals/${pending.id}`, {
+        const res = await fetch(`/api/approvals/${pending.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status: 'approved', payload: pending.payload }),
         });
+        if (!res.ok) throw new Error('Failed to log approval');
         addEvent('Approval logged → /api/approvals', 'completed', 'approval');
       } catch {
         addEvent('Approval store write failed (non-blocking)', 'rejected', 'approval');
@@ -246,8 +247,10 @@ export function CityMap() {
       const parsed = JSON.parse(editPayload) as Record<string, unknown>;
       setPending((prev: PendingAction | null) => prev ? { ...prev, payload: parsed } : prev);
       addEvent('Payload edited by operator', 'awaiting', 'approval');
-    } catch { /* invalid JSON */ }
-    setIsEditing(false);
+      setIsEditing(false);
+    } catch {
+      alert('Invalid JSON — please correct the payload before saving.');
+    }
   }, [pending, editPayload, addEvent]);
 
   const canRun = objective.trim().length > 0 && !isLive;
@@ -615,7 +618,7 @@ export function CityMap() {
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5 }}>
                       <span style={{ fontSize: 9, color: '#7E8AA3', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>Payload</span>
                       {!isEditing ? (
-                        <button onClick={() => setIsEditing(true)} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: '#7E8AA3', background: 'none', border: 'none', cursor: 'pointer' }}>
+                        <button onClick={() => { setEditPayload(JSON.stringify(pending.payload, null, 2)); setIsEditing(true); }} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: '#7E8AA3', background: 'none', border: 'none', cursor: 'pointer' }}>
                           <Edit3 size={9} /> Edit
                         </button>
                       ) : (
