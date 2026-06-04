@@ -207,18 +207,41 @@ export function CityMap() {
     addEvent('Consequential action detected → routing to Approval Desk', 'awaiting', 'approval');
     setActiveRoom('approval');
 
+    const actionPayload = {
+      objective: objective.trim(), mode,
+      subtasks: ['Analyze data', 'Prepare output', 'Deliver to stakeholders'],
+      estimatedImpact: 'medium',
+      reversible: mode !== 'live',
+      requiresExternalCommit: mode === 'live',
+      timestamp: new Date().toISOString(),
+    };
+    const actionType = mode === 'live' ? 'LIVE_ACTION' : mode === 'dry-run' ? 'DRY_RUN_PREVIEW' : 'DEMO_ACTION';
+
+    let actionId = uid();
+    if (mode === 'live') {
+      try {
+        const preRes = await fetch('/api/approvals', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ source: 'governor-office', action: actionType, payload: actionPayload, riskLevel: 'HIGH' }),
+        });
+        if (preRes.ok) {
+          const preData = await preRes.json() as { ok: boolean; approval?: { id: string } };
+          if (preData.ok && preData.approval?.id) {
+            actionId = preData.approval.id;
+            addEvent('Approval record created in store', 'completed', 'approval');
+          }
+        }
+      } catch {
+        addEvent('Approval pre-register failed (non-blocking)', 'rejected', 'approval');
+      }
+    }
+
     const action: PendingAction = {
-      id: uid(),
-      type: mode === 'live' ? 'LIVE_ACTION' : mode === 'dry-run' ? 'DRY_RUN_PREVIEW' : 'DEMO_ACTION',
+      id: actionId,
+      type: actionType,
       summary: objective.trim().slice(0, 100),
-      payload: {
-        objective: objective.trim(), mode,
-        subtasks: ['Analyze data', 'Prepare output', 'Deliver to stakeholders'],
-        estimatedImpact: 'medium',
-        reversible: mode !== 'live',
-        requiresExternalCommit: mode === 'live',
-        timestamp: new Date().toISOString(),
-      },
+      payload: actionPayload,
     };
     setPending(action);
     setEditPayload(JSON.stringify(action.payload, null, 2));
