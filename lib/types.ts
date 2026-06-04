@@ -13,4 +13,52 @@ export interface AgentRunLog { id: string; agentId: string; objective: string; p
 export interface ApprovalItem { id: string; source: string; action: string; provider?: string; payload?: unknown; riskLevel?: "LOW" | "MEDIUM" | "HIGH"; status: "PENDING" | "APPROVED" | "REJECTED"; createdAt: string; updatedAt?: string; }
 export interface AuditEntry { timestamp: string; taskId: string; action: string; status: "INITIATED" | "APPROVED" | "EXECUTING" | "SUCCESS" | "FAILED" | "RETRY"; agent?: string; result?: unknown; error?: string; }
 export interface ExecutionNotification { type: string; timestamp: string; summary: { processed: number; succeeded: number; failed: number; retried: number }; results: Array<{ id: string; title: string; status: "DONE" | "CANCELED" | "RETRYING"; result?: Record<string, unknown>; error?: string; failedAfter?: string; attempt?: number; nextRetryAt?: string }>; }
-export interface DemoDb { opportunities: Opportunity[]; offers: Offer[]; contentItems: ContentItem[]; assets: Asset[]; decisions: Decision[]; briefings: Briefing[]; lifestyle: LifestyleItem[]; tasks: Task[]; leads: Lead[]; settings?: EmpireSettings; agents?: StoredAgent[]; agentRuns?: AgentRunLog[]; approvals?: ApprovalItem[]; }
+export interface DemoDb { opportunities: Opportunity[]; offers: Offer[]; contentItems: ContentItem[]; assets: Asset[]; decisions: Decision[]; briefings: Briefing[]; lifestyle: LifestyleItem[]; tasks: Task[]; leads: Lead[]; settings?: EmpireSettings; agents?: StoredAgent[]; agentRuns?: AgentRunLog[]; approvals?: ApprovalItem[]; academyAgents?: StarAcademyAgent[]; }
+
+export type AcademySchool =
+  | "executive_operations"
+  | "social_media_performance"
+  | "business_development"
+  | "creative_production"
+  | "technical_integrations"
+  | "strategy_performance";
+
+export type AcademyStatus =
+  | "auditioning"
+  | "training"
+  | "performing"
+  | "featured"
+  | "hireable"
+  | "graduated";
+
+export interface AgentScores {
+  usefulness: number;
+  clarity: number;
+  accuracy: number;
+  personality_fit: number;
+  execution_speed: number;
+  business_value: number;
+  delight_factor: number;
+}
+
+export interface StarAcademyAgent {
+  id: string;
+  stage_name: string;
+  name: string;
+  real_role: string;
+  personality: string;
+  school: AcademySchool;
+  skills: string[];
+  tools: string[];
+  memory: string;
+  voice?: string;
+  performance_track: string;
+  kpis: string[];
+  scores: AgentScores;
+  total_score: number;
+  ratings: { user: number; evaluator: number };
+  status: AcademyStatus;
+  motto?: string;
+  createdAt: string;
+  updatedAt: string;
+}
