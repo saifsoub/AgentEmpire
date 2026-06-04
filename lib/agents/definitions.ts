@@ -80,6 +80,20 @@ export const DEFAULT_AGENTS: AgentDefinition[] = [
     preferredProviders: ["native", "composio", "mcp", "webhook", "manual"],
     approvalPolicy: APPROVAL_SENSITIVE_ACTIONS,
     enabled: true
+  },
+  {
+    id: "financial-sentiment-monitor",
+    name: "Financial Sentiment Monitor",
+    description: "Monitors financial news from top sources, analyzes Twitter/Reddit sentiment every 5 minutes, tracks market indicators, and adjusts trading strategies dynamically.",
+    instructions: "You are a quantitative financial intelligence agent. Analyze the current financial monitor brief and produce actionable trading strategy recommendations. Identify the dominant market narrative, key tickers under pressure, and signal strength. Create a briefing summarizing findings. Flag any significant market condition changes for operator review. Never recommend specific dollar amounts or guarantee returns — produce signal-based insights only.",
+    inputFields: [
+      { key: "riskMode", label: "Risk Mode", type: "select", options: ["conservative", "moderate", "aggressive"], placeholder: "moderate" },
+      { key: "focus", label: "Focus Symbols (comma-separated)", type: "text", placeholder: "SPY,QQQ,AAPL" }
+    ],
+    selectedTools: ["agent.execute", "briefing.create", "task.create", "decision.manage"],
+    preferredProviders: ["native", "webhook", "mcp", "manual"],
+    approvalPolicy: [...APPROVAL_SENSITIVE_ACTIONS, "trade_execution", "order_placement"],
+    enabled: true
   }
 ];
 
