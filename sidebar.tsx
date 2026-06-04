@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BarChart3, BriefcaseBusiness, FileChartColumn, FileStack, LayoutDashboard, Settings, ShieldCheck, Sparkles, Wallet } from "lucide-react";
+import { BarChart3, BriefcaseBusiness, FileChartColumn, FileStack, LayoutDashboard, Settings, ShieldCheck, Sparkles, TrendingUp, Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
 const items = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -10,6 +10,7 @@ const items = [
   { href: "/decisions", label: "Decisions", icon: ShieldCheck },
   { href: "/briefings", label: "Briefings", icon: FileChartColumn },
   { href: "/lifestyle", label: "Lifestyle", icon: BarChart3 },
+  { href: "/financial-monitor", label: "Financial Monitor", icon: TrendingUp },
   { href: "/settings", label: "Settings", icon: Settings }
 ];
 export function Sidebar({ pathname }: { pathname: string }) {
