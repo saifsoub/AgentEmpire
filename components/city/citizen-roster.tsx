@@ -1,0 +1,2 @@
+import { cityCitizens } from '@/lib/city-data';
+export function CitizenRoster(){return <div className='card p-5'><h3 className='mb-4 text-lg font-semibold'>Citizens</h3><div className='space-y-3'>{cityCitizens.map(c=><div key={c.slug} className='rounded-2xl border border-border p-3'><div className='font-semibold'>{c.name}</div><div className='text-xs text-secondary'>{c.role}</div><div className='mt-2 text-xs'>Rep {c.reputation} • Happy {c.happiness}</div></div>)}</div></div>}
