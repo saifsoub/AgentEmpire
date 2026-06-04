@@ -1,0 +1,2 @@
+import { cityMissions } from '@/lib/city-data';
+export function MissionBoard(){return <div className='card p-5'><h3 className='mb-4 text-lg font-semibold'>Missions</h3><div className='space-y-3'>{cityMissions.map(m=><div key={m.title} className='rounded-2xl border border-border p-3'><div>{m.title}</div><div className='text-xs text-secondary'>{m.owner} • {m.status}</div></div>)}</div></div>}
