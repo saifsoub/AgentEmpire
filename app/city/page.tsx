@@ -3,7 +3,7 @@ import { CityMap } from "@/components/city/city-map";
 
 export default function CityPage() {
   return (
-    <AppShell pathname="/city" title="S/ Happy Agent City" subtitle="Enter the living agent city.">
+    <AppShell pathname="/city" title="Agent Control World" subtitle="Operator room — plan, execute, and govern your agents.">
       <CityMap />
     </AppShell>
   );
