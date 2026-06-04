@@ -1,11 +1,13 @@
 'use client';
 
 import React, { useState, useCallback, useRef } from 'react';
+import Link from 'next/link';
 import {
   Terminal, Play, RotateCcw, CheckCircle, XCircle, Clock,
   AlertTriangle, Zap, Shield, TrendingUp, Brain,
   ChevronRight, Edit3, Check, X, Eye, Activity,
   Radio, Cpu, Lock, ArrowRight,
+  ArrowLeftRight, ShoppingBag, Scale, DoorOpen, Bot, Hammer, Home, Archive, Map,
 } from 'lucide-react';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -71,6 +73,26 @@ const ROOMS: RoomDef[] = [
     glow: 'rgba(251,191,36,0.14)', border: 'rgba(251,191,36,0.38)', bg: 'rgba(44,34,8,0.72)',
     offsetY: 5, minH: 172,
   },
+];
+
+// ── City Districts (navigation surface) ───────────────────────────────────────
+
+interface DistrictDef {
+  id: string; label: string; description: string; href: string;
+  Icon: React.ComponentType<{ size?: number; style?: React.CSSProperties }>;
+  color: string; glow: string; border: string;
+}
+
+const DISTRICTS: DistrictDef[] = [
+  { id: 'exchange',  label: 'The Exchange',     description: 'Deals in motion',          href: '/opportunities', Icon: ArrowLeftRight, color: '#f59e0b', glow: 'rgba(245,158,11,0.14)', border: 'rgba(245,158,11,0.38)' },
+  { id: 'market',    label: 'The Marketplace',  description: 'Offers and assets',         href: '/offers',        Icon: ShoppingBag,    color: '#2dd4bf', glow: 'rgba(45,212,191,0.14)',  border: 'rgba(45,212,191,0.38)' },
+  { id: 'tower',     label: 'Broadcast Tower',  description: 'Publish and amplify',       href: '/content',       Icon: Radio,          color: '#a78bfa', glow: 'rgba(167,139,250,0.14)', border: 'rgba(167,139,250,0.38)' },
+  { id: 'chamber',   label: 'Council Chamber',  description: 'Strategic choices',         href: '/decisions',     Icon: Scale,          color: '#f472b6', glow: 'rgba(244,114,182,0.14)', border: 'rgba(244,114,182,0.38)' },
+  { id: 'arrivals',  label: 'Arrivals Hall',    description: 'Visitors and inquiries',    href: '/leads',         Icon: DoorOpen,       color: '#60a5fa', glow: 'rgba(96,165,250,0.14)',  border: 'rgba(96,165,250,0.38)' },
+  { id: 'agency',    label: 'The Agency',       description: 'Agents and citizens',       href: '/agents',        Icon: Bot,            color: '#34d399', glow: 'rgba(52,211,153,0.14)',  border: 'rgba(52,211,153,0.38)' },
+  { id: 'yards',     label: 'Work Yards',       description: 'Active work orders',        href: '/tasks',         Icon: Hammer,         color: '#fb923c', glow: 'rgba(251,146,60,0.14)',  border: 'rgba(251,146,60,0.38)' },
+  { id: 'quarters',  label: 'The Quarters',     description: 'Personal infrastructure',   href: '/lifestyle',     Icon: Home,           color: '#e879f9', glow: 'rgba(232,121,249,0.14)', border: 'rgba(232,121,249,0.38)' },
+  { id: 'archive',   label: 'The Archive',      description: 'Records and configuration', href: '/settings',      Icon: Archive,        color: '#94a3b8', glow: 'rgba(148,163,184,0.14)', border: 'rgba(148,163,184,0.38)' },
 ];
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
@@ -273,9 +295,73 @@ export function CityMap() {
         @keyframes ace-glow {
           0%,100%{opacity:.6} 50%{opacity:1}
         }
+        .district-card { transition: all 0.22s cubic-bezier(0.4,0,0.2,1); }
+        .district-card:hover { transform: translateY(-3px); filter: brightness(1.18); box-shadow: 0 6px 22px rgba(0,0,0,0.28); }
       `}</style>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+
+        {/* ── City district map ──────────────────────────────────────────────── */}
+        <div style={{
+          borderRadius: 20, border: '1px solid #27324A',
+          background: 'linear-gradient(160deg, #0d1829 0%, #0a0f1a 55%, #0c1620 100%)',
+          padding: 20, position: 'relative', overflow: 'hidden',
+        }}>
+          {/* Floor grid */}
+          <div style={{
+            position: 'absolute', inset: 0, borderRadius: 20, opacity: 0.10, pointerEvents: 'none',
+            backgroundImage: 'linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px)',
+            backgroundSize: '40px 40px',
+            maskImage: 'radial-gradient(ellipse 100% 100% at 50% 50%, black 20%, transparent 100%)',
+            WebkitMaskImage: 'radial-gradient(ellipse 100% 100% at 50% 50%, black 20%, transparent 100%)',
+          }} />
+
+          {/* Header */}
+          <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+            <Map size={13} style={{ color: '#EB5815' }} />
+            <span style={{ fontSize: 10, fontWeight: 700, color: '#7E8AA3', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+              City Districts
+            </span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: '#4b5a73' }}>
+              Navigate to any district
+            </span>
+          </div>
+
+          {/* District grid */}
+          <div style={{ position: 'relative', zIndex: 2, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+            {DISTRICTS.map(d => {
+              const { Icon } = d;
+              return (
+                <Link key={d.id} href={d.href} style={{ textDecoration: 'none', display: 'block' }}>
+                  <div className="district-card" style={{
+                    borderRadius: 14, border: '1px solid #27324A',
+                    background: 'rgba(18,24,38,0.6)', padding: '13px 14px', cursor: 'pointer',
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+                      <Icon size={13} style={{ color: d.color }} />
+                      <span style={{ fontSize: 11, fontWeight: 700, color: d.color, letterSpacing: '0.02em' }}>
+                        {d.label}
+                      </span>
+                    </div>
+                    <p style={{ fontSize: 10, color: '#7E8AA3', lineHeight: 1.4, margin: 0 }}>{d.description}</p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* ── Governor's Office divider ──────────────────────────────────────── */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ flex: 1, height: 1, background: '#1e2a40' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Shield size={10} style={{ color: '#fbbf24' }} />
+            <span style={{ fontSize: 10, fontWeight: 700, color: '#7E8AA3', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+              Governor&apos;s Office
+            </span>
+          </div>
+          <div style={{ flex: 1, height: 1, background: '#1e2a40' }} />
+        </div>
 
         {/* ── Mode selector bar ─────────────────────────────────────────────── */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
