@@ -16,3 +16,6 @@ tsconfig.tsbuildinfo
 # misc
 .DS_Store
 *.pem
+
+# runtime data (VPS file-based store)
+var/
