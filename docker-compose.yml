@@ -1,0 +1,19 @@
+services:
+  app:
+    build: .
+    container_name: agent-empire
+    restart: unless-stopped
+    ports:
+      - "7483:7483"
+    volumes:
+      - agent_data:/data
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - DATA_DIR=/data
+      - PORT=7483
+
+volumes:
+  agent_data:
+    driver: local
