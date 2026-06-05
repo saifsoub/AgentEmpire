@@ -1,10 +1,10 @@
-import { AppShell } from "@/components/layout/app-shell";
-import { CityMap } from "@/components/city/city-map";
+import { AgentsCity } from "@/components/city/agents-city";
+
+export const metadata = {
+  title: "Agents City — S/ Neighborhood",
+  description: "A life-sim style 3D agentic city. Every agent has a lot. Every action leaves a record.",
+};
 
 export default function CityPage() {
-  return (
-    <AppShell pathname="/city" title="The City" subtitle="Navigate your districts. Every agent has a home. Every action leaves a record.">
-      <CityMap />
-    </AppShell>
-  );
+  return <AgentsCity />;
 }
