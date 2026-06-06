@@ -3,11 +3,14 @@ import { computeOpportunityScore, computeEmpireScore } from "@/lib/scoring";
 import { average } from "@/lib/utils";
 import { DEFAULT_AGENTS } from "@/lib/agents/definitions";
 
-const DB_KEY = "demo-db";
+import { readFile, writeFile, mkdir } from "fs/promises";
+import path from "path";
+
 const DEFAULT_DB: DemoDb = { opportunities: [], offers: [], contentItems: [], assets: [], decisions: [], briefings: [], lifestyle: [], tasks: [], leads: [], agents: [], agentRuns: [], approvals: [] };
-async function getBlobStore() { const { getStore } = await import("@netlify/blobs"); return getStore({ name: "personal-empire-os", consistency: "strong" }); }
-async function readDb(): Promise<DemoDb> { try { const store = await getBlobStore(); const existing = await store.get(DB_KEY, { type: "json" }); return { ...DEFAULT_DB, ...(existing || {}) } as DemoDb; } catch { return { ...DEFAULT_DB }; } }
-async function writeDb(data: DemoDb) { try { const store = await getBlobStore(); await store.setJSON(DB_KEY, data); } catch {} }
+const DATA_DIR = process.env.DATA_DIR ?? path.join(process.cwd(), "var");
+const DB_PATH = path.join(DATA_DIR, "empire-db.json");
+async function readDb(): Promise<DemoDb> { try { const raw = await readFile(DB_PATH, "utf8"); return { ...DEFAULT_DB, ...JSON.parse(raw) } as DemoDb; } catch { return { ...DEFAULT_DB }; } }
+async function writeDb(data: DemoDb) { try { await mkdir(DATA_DIR, { recursive: true }); await writeFile(DB_PATH, JSON.stringify(data)); } catch {} }
 const now = () => new Date().toISOString();
 const id = (prefix: string) => `${prefix}_${Math.random().toString(36).slice(2, 10)}`;
 const normalize = (value: string) => value.trim().toLowerCase().replace(/\s+/g, " ");
