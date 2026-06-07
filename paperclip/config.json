@@ -1,0 +1,48 @@
+{
+  "$meta": {
+    "version": 1,
+    "source": "repo"
+  },
+  "database": {
+    "mode": "external-postgres",
+    "backup": {
+      "enabled": true,
+      "intervalMinutes": 60,
+      "retentionDays": 30,
+      "dir": "/root/.paperclip/instances/default/data/backups"
+    }
+  },
+  "logging": {
+    "mode": "file",
+    "logDir": "/root/.paperclip/instances/default/logs"
+  },
+  "server": {
+    "deploymentMode": "local_trusted",
+    "exposure": "network",
+    "bind": "network",
+    "host": "0.0.0.0",
+    "port": 3100,
+    "allowedHostnames": [],
+    "serveUi": true
+  },
+  "auth": {
+    "baseUrlMode": "auto",
+    "disableSignUp": false
+  },
+  "telemetry": {
+    "enabled": false
+  },
+  "storage": {
+    "provider": "local_disk",
+    "localDisk": {
+      "baseDir": "/root/.paperclip/instances/default/data/storage"
+    }
+  },
+  "secrets": {
+    "provider": "local_encrypted",
+    "strictMode": false,
+    "localEncrypted": {
+      "keyFilePath": "/root/.paperclip/instances/default/secrets/master.key"
+    }
+  }
+}
