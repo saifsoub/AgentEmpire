@@ -1,0 +1,62 @@
+name: agent-empire
+# Regions: nyc (New York), ams (Amsterdam), fra (Frankfurt),
+#          lon (London), sgp (Singapore), blr (Bangalore), syd (Sydney)
+# Pick the one closest to you — fra or ams is closest to UAE.
+region: fra
+
+services:
+  - name: web
+    github:
+      repo: saifsoub/AgentEmpire
+      branch: main
+      deploy_on_push: true
+    dockerfile_path: Dockerfile
+    http_port: 3000
+    instance_count: 1
+    # basic-xxs = $5/month (512 MB RAM, 1 vCPU shared)
+    # basic-xs  = $12/month (1 GB RAM) — upgrade if you hit memory limits during build
+    instance_size_slug: basic-xxs
+    routes:
+      - path: /
+    health_check:
+      http_path: /api/health
+      timeout_seconds: 30
+      interval_seconds: 30
+      failure_threshold: 3
+    envs:
+      - key: NODE_ENV
+        value: production
+        scope: RUN_AND_BUILD_TIME
+      - key: DATA_DIR
+        value: /app/var
+        scope: RUN_TIME
+      # Set the values for these secrets in the App Platform dashboard
+      # (Settings → App-Level Environment Variables → Encrypt)
+      - key: ANTHROPIC_API_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: COMPOSIO_API_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: COMPOSIO_USER_ID
+        scope: RUN_TIME
+        type: SECRET
+      - key: WEBHOOK_ROUTER_URL
+        scope: RUN_TIME
+        type: SECRET
+      - key: WEBHOOK_ROUTER_TOKEN
+        scope: RUN_TIME
+        type: SECRET
+      - key: MCP_SERVER_URL
+        scope: RUN_TIME
+        type: SECRET
+      - key: MCP_AUTH_TOKEN
+        scope: RUN_TIME
+        type: SECRET
+
+# ── Storage note ──────────────────────────────────────────────────────────────
+# App Platform containers are ephemeral — /app/var resets on every redeploy.
+# For persistent data, two upgrade paths:
+#   A) Add a DigitalOcean Managed Postgres ($15/mo) and swap lib/store.ts to pg
+#   B) Add a DO Spaces bucket ($5/mo, S3-compatible) and swap lib/store.ts to S3
+# Until then, the app works fine — data just resets when you redeploy.
