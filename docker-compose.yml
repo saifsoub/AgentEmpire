@@ -1,4 +1,40 @@
 services:
+  paperclip:
+    image: node:22-alpine
+    container_name: paperclip
+    restart: unless-stopped
+    command: sh -c "npm install -g paperclipai && paperclipai run"
+    environment:
+      - DATABASE_URL=postgresql://paperclip:paperclip@postgres:5432/paperclip
+      - NODE_ENV=production
+    ports:
+      - "3100:3100"
+    volumes:
+      - paperclip-data:/root/.paperclip
+    networks:
+      - traefik
+      - internal
+    depends_on:
+      - postgres
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.paperclip.rule=Host(`paperclip.srv1446443.hstgr.cloud`)"
+      - "traefik.http.routers.paperclip.entrypoints=web"
+      - "traefik.http.services.paperclip.loadbalancer.server.port=3100"
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: paperclip-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=paperclip
+      - POSTGRES_PASSWORD=paperclip
+      - POSTGRES_DB=paperclip
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - internal
+
   agent-empire:
     build: .
     container_name: agent-empire
@@ -11,6 +47,7 @@ services:
       - empire-data:/app/var
     networks:
       - traefik
+      - internal
     labels:
       - "traefik.enable=true"
       # HTTP
@@ -26,7 +63,11 @@ services:
 
 volumes:
   empire-data:
+  paperclip-data:
+  postgres-data:
 
 networks:
   traefik:
     external: true
+  internal:
+    driver: bridge

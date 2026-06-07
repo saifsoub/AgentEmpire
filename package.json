@@ -12,7 +12,9 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "paperclip": "paperclipai run",
+    "paperclip:setup": "paperclipai onboard --yes"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.80.0",
