@@ -23,5 +23,7 @@ bash infra/deploy.sh
 
 echo ""
 echo "==> Setup complete!"
-echo "    App: http://srv1446443.hstgr.cloud"
-echo "    Logs: docker compose logs -f agent-empire"
+echo "    App:      http://srv1446443.hstgr.cloud"
+echo "    OpenClaw: http://srv1446443.hstgr.cloud:4096  (scan QR here)"
+echo "    Logs:     docker compose logs -f agent-empire"
+echo "    Bot logs: docker compose logs -f openclaw"
