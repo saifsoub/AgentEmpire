@@ -1,0 +1,16 @@
+services:
+  agent-empire:
+    build: .
+    container_name: agent-empire
+    restart: unless-stopped
+    env_file: .env.local
+    environment:
+      - NODE_ENV=production
+      - DATA_DIR=/app/var
+    ports:
+      - "80:3000"
+    volumes:
+      - empire-data:/app/var
+
+volumes:
+  empire-data:
