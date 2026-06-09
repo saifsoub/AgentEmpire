@@ -1,0 +1,10 @@
+FROM node:22-alpine
+
+RUN npm install -g paperclipai
+
+COPY paperclip/config.json /paperclip-config/config.json
+
+CMD ["sh", "-c", \
+  "mkdir -p /root/.paperclip/instances/default && \
+   cp /paperclip-config/config.json /root/.paperclip/instances/default/config.json && \
+   paperclipai run"]

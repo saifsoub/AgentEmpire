@@ -1,15 +1,11 @@
 services:
   paperclip:
-    image: node:22-alpine
+    build:
+      context: .
+      dockerfile: Dockerfile.paperclip
+    image: paperclip:local
     container_name: paperclip
     restart: unless-stopped
-    command: >
-      sh -c "
-        npm install -g paperclipai &&
-        mkdir -p /root/.paperclip/instances/default &&
-        cp /paperclip-config/config.json /root/.paperclip/instances/default/config.json &&
-        paperclipai run
-      "
     environment:
       - DATABASE_URL=postgresql://paperclip:paperclip@postgres:5432/paperclip
       - NODE_ENV=production
@@ -17,7 +13,6 @@ services:
       - "3100:3100"
     volumes:
       - paperclip-data:/root/.paperclip
-      - ./paperclip/config.json:/paperclip-config/config.json:ro
     networks:
       - traefik
       - internal
