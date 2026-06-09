@@ -17,7 +17,8 @@ services:
       - traefik
       - internal
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.paperclip.rule=Host(`paperclip.srv1446443.hstgr.cloud`)"
@@ -36,6 +37,12 @@ services:
       - postgres-data:/var/lib/postgresql/data
     networks:
       - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U paperclip -d paperclip"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   agent-empire:
     build: .
