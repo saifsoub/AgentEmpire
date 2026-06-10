@@ -33,6 +33,8 @@ See [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) for the full stack diagram.
 
 ```bash
 npm install
+cp .env.example .env.local
+npm run readiness
 npm run dev
 ```
 
@@ -41,10 +43,14 @@ Open **http://localhost:7483** (default port in `package.json`).
 Other scripts:
 
 ```bash
+npm run readiness  # workspace/env readiness report
 npm run build      # production build
 npm run typecheck  # TypeScript
 npm run test       # vitest
 ```
+
+Environment setup runbook: [docs/ENVIRONMENT_READINESS.md](docs/ENVIRONMENT_READINESS.md).
+Safe secrets handoff flow: [docs/SECRETS_TRANSMISSION.md](docs/SECRETS_TRANSMISSION.md) and the self-contained page at [`public/secret-intake.html`](public/secret-intake.html).
 
 Data persists to `data/demo-db.json` (file-backed demo store). Production path: Supabase via S-OS or direct client.
 

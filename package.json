@@ -12,7 +12,8 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "readiness": "node scripts/check-env-readiness.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.80.0",
