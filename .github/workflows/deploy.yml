@@ -37,13 +37,17 @@ jobs:
             # Create .env.local on first deploy
             if [ ! -f .env.local ]; then
               cat > .env.local <<ENVEOF
-            ANTHROPIC_API_KEY=
-            GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}
-            COMPOSIO_API_KEY=${{ secrets.COMPOSIO_API_KEY }}
-            COMPOSIO_USER_ID=saifssss@gmail.com
-            LINEAR_API_KEY=${{ secrets.LINEAR_API_KEY }}
-            ENVEOF
+ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
+GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}
+COMPOSIO_API_KEY=${{ secrets.COMPOSIO_API_KEY }}
+COMPOSIO_USER_ID=saifssss@gmail.com
+LINEAR_API_KEY=${{ secrets.LINEAR_API_KEY }}
+ENVEOF
             fi
+
+            # Patch critical keys every deploy so rotating secrets takes effect
+            sed -i "s|^ANTHROPIC_API_KEY=.*|ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}|" .env.local
+            sed -i "s|^COMPOSIO_API_KEY=.*|COMPOSIO_API_KEY=${{ secrets.COMPOSIO_API_KEY }}|" .env.local
 
             # Deploy (no Traefik on this server)
             docker compose -f docker-compose.simple.yml up -d --build
