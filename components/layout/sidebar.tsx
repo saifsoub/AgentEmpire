@@ -1,9 +1,11 @@
 import Link from "next/link";
-import { ArrowLeftRight, ShoppingBag, Radio, Scale, DoorOpen, Bot, Hammer, Home, Archive, Map } from "lucide-react";
+import { ArrowLeftRight, ShoppingBag, Radio, Scale, DoorOpen, Bot, Hammer, Home, Archive, Map, GraduationCap, Landmark } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const districts = [
-  { href: "/city",          label: "City Map",         icon: Map,           city: true  },
+  { href: "/city",            label: "S/ City",          icon: Map,           city: true  },
+  { href: "/city/university", label: "S/ University",    icon: GraduationCap              },
+  { href: "/city/banking",    label: "S/ Banking",       icon: Landmark                   },
   { href: "/opportunities", label: "The Exchange",      icon: ArrowLeftRight             },
   { href: "/offers",        label: "The Marketplace",   icon: ShoppingBag                },
   { href: "/content",       label: "Broadcast Tower",   icon: Radio                      },
