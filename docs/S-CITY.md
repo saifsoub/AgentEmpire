@@ -1,5 +1,9 @@
 # S/ City
 
+> **City Core** — the canonical schemas, lifecycles, governance, and registries
+> every institution below depends on — is documented in
+> [docs/CITY-CORE.md](CITY-CORE.md) (`lib/city-core.ts`).
+
 S/ City is the world layer of AgentEmpire: a vibrant city known for its iconic
 skyline, palm-lined streets, and diverse 3D architecture. With perfect weather
 nearly year-round, it blends urban excitement with natural charm — and a
