@@ -31,6 +31,8 @@ export const cityInstitutions: CityInstitution[] = [
 
 export const cityDistricts = Array.from(new Set(cityInstitutions.map((institution) => institution.district)));
 
+// The canonical governance path is enforced by the City Core gate
+// (`canRecordCompletion` in lib/city-core.ts). Keep these stages in sync.
 export const cityGovernanceFlow = [
   'Claim captured',
   'Evidence attached',
