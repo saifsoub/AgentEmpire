@@ -15,11 +15,30 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const PORT        = parseInt(process.env.PORT || '4096', 10);
 const SESSION_DIR = process.env.SESSION_DIR || join(__dirname, 'data', 'session');
-const BOT_NAME    = process.env.BOT_NAME || 'OpenClaw';
-const SYSTEM_PROMPT = process.env.SYSTEM_PROMPT
-  || `You are ${BOT_NAME}, a sharp and helpful AI assistant. Be concise — WhatsApp readers prefer short replies. Answer accurately and directly.`;
-const CLAUDE_MODEL  = process.env.CLAUDE_MODEL || 'claude-haiku-4-5-20251001';
-const MAX_HISTORY   = 10;
+const BOT_NAME    = process.env.BOT_NAME || 'Sally';
+
+const SALLY_SYSTEM_PROMPT = `You are Sally, the private secretary and personal assistant for Seif Alsoub (saifssss@gmail.com).
+
+Your job: Handle personal scheduling, bookings, appointments, and private coordination tasks.
+
+Capabilities:
+- Book appointments (barbershop, restaurants, meetings) using the browser tool
+- Manage calendar entries
+- Follow up on personal tasks
+- Coordinate private matters discreetly
+
+Style: Efficient, direct, no fluff. Always report what you did and the outcome.
+When booking: confirm the date, time, service, and any reference number.
+When blocked (login required, slot unavailable): say exactly what happened and what Seif needs to do.
+Keep WhatsApp replies short and scannable.`;
+
+const SYSTEM_PROMPT  = process.env.SYSTEM_PROMPT || SALLY_SYSTEM_PROMPT;
+const CHAT_MODEL     = process.env.CLAUDE_MODEL   || 'claude-haiku-4-5-20251001';
+const BOOKING_MODEL  = process.env.BOOKING_MODEL  || 'claude-opus-4-8';
+const MAX_HISTORY    = 10;
+
+const COMPOSIO_API     = 'https://backend.composio.dev/api/v2';
+const BOOKING_PATTERN  = /\b(book|barber|haircut|appointment|corner barber|rukan|grooming|salon|schedule|dentist|doctor|reservation|reserve)\b/i;
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const logger    = pino({ level: process.env.LOG_LEVEL || 'info' });
@@ -76,7 +95,7 @@ app.get('/', (_req, res) => {
 
   ${isConnected
     ? `<p style="color:#6ee7b7;font-size:.9rem;text-align:center">
-         Bot is live — message your WhatsApp number to chat with Claude
+         Bot is live — message your WhatsApp number to chat with ${BOT_NAME}
        </p>`
     : currentQR
       ? `<div class="qr-wrap">
@@ -111,10 +130,10 @@ app.get('/status', (_req, res) => {
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-  logger.info(`OpenClaw web UI → http://0.0.0.0:${PORT}`);
+  logger.info(`${BOT_NAME} web UI → http://0.0.0.0:${PORT}`);
 });
 
-// ─── Claude ──────────────────────────────────────────────────────────────────
+// ─── General Claude chat ──────────────────────────────────────────────────────
 
 async function getClaudeReply(jid, userText) {
   if (!conversations.has(jid)) conversations.set(jid, []);
@@ -124,7 +143,7 @@ async function getClaudeReply(jid, userText) {
   if (history.length > MAX_HISTORY) history.splice(0, history.length - MAX_HISTORY);
 
   const resp = await anthropic.messages.create({
-    model: CLAUDE_MODEL,
+    model: CHAT_MODEL,
     max_tokens: 1024,
     system: SYSTEM_PROMPT,
     messages: history,
@@ -133,6 +152,87 @@ async function getClaudeReply(jid, userText) {
   const reply = resp.content[0].text;
   history.push({ role: 'assistant', content: reply });
   return reply;
+}
+
+// ─── Sally booking agent ──────────────────────────────────────────────────────
+
+async function runSallyBookingAgent(sock, jid, userText) {
+  await sock.sendMessage(jid, { text: '🗂️ On it — booking now. I\'ll update you when it\'s done.' });
+
+  const composioKey = process.env.COMPOSIO_API_KEY;
+  if (!composioKey) {
+    await sock.sendMessage(jid, { text: '⚠️ COMPOSIO_API_KEY not configured. Add it and restart.' });
+    return;
+  }
+
+  let tools = [];
+  try {
+    const res = await fetch(`${COMPOSIO_API}/actions?apps=BROWSER_TOOL&limit=50`, {
+      headers: { 'x-api-key': composioKey },
+    });
+    const data = await res.json();
+    tools = (data.items || []).map(action => ({
+      name: action.name,
+      description: action.description,
+      input_schema: action.parameters,
+    }));
+  } catch (e) {
+    await sock.sendMessage(jid, { text: `⚠️ Could not load browser tools: ${e.message}` });
+    return;
+  }
+
+  const messages = [
+    {
+      role: 'user',
+      content: `${SALLY_SYSTEM_PROMPT}
+
+Request: "${userText}"
+
+Complete this booking using the browser tool. Report exactly what happened (booked, needs login, slot unavailable, etc.).`,
+    },
+  ];
+
+  let iterations = 0;
+  while (iterations < 15) {
+    iterations++;
+
+    const response = await anthropic.messages.create({
+      model: BOOKING_MODEL,
+      max_tokens: 4096,
+      tools,
+      messages,
+    });
+
+    messages.push({ role: 'assistant', content: response.content });
+
+    if (response.stop_reason === 'end_turn') {
+      const textBlock = response.content.find(b => b.type === 'text');
+      const result = textBlock?.text ?? 'Done.';
+      await sock.sendMessage(jid, { text: `✅ Sally: ${result}` });
+      return;
+    }
+
+    if (response.stop_reason !== 'tool_use') break;
+
+    const toolResults = [];
+    for (const block of response.content) {
+      if (block.type !== 'tool_use') continue;
+      try {
+        const res = await fetch(`${COMPOSIO_API}/actions/${block.name}/execute`, {
+          method: 'POST',
+          headers: { 'x-api-key': composioKey, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ entityId: 'default', input: block.input }),
+        });
+        const result = await res.json();
+        toolResults.push({ type: 'tool_result', tool_use_id: block.id, content: JSON.stringify(result) });
+      } catch (e) {
+        toolResults.push({ type: 'tool_result', tool_use_id: block.id, content: `Error: ${e.message}`, is_error: true });
+      }
+    }
+    messages.push({ role: 'user', content: toolResults });
+  }
+
+  await sock.sendMessage(jid, { text: '⚠️ Sally: Hit the iteration limit — manual follow-up needed.' });
 }
 
 // ─── WhatsApp bot ─────────────────────────────────────────────────────────────
@@ -170,7 +270,6 @@ async function startBot() {
 
     if (connection === 'close') {
       currentQR = null;
-      // Baileys wraps errors in @hapi/boom; statusCode lives at .output.statusCode
       const code = lastDisconnect?.error?.output?.statusCode ?? 0;
       const reconnect = code !== DisconnectReason.loggedOut;
       connectionStatus = reconnect ? 'reconnecting' : 'logged_out';
@@ -207,16 +306,25 @@ async function startBot() {
 
       logger.info({ jid, preview: text.slice(0, 60) }, 'Message in');
 
-      try {
-        await sock.readMessages([msg.key]);
-        const reply = await getClaudeReply(jid, text);
-        await sock.sendMessage(jid, { text: reply });
-        logger.info({ jid }, 'Reply sent');
-      } catch (err) {
-        logger.error({ err: err.message, jid }, 'Handler error');
-        await sock.sendMessage(jid, {
-          text: 'Something went wrong on my end — please try again in a moment.',
-        }).catch(() => {});
+      await sock.readMessages([msg.key]);
+
+      if (BOOKING_PATTERN.test(text)) {
+        logger.info({ jid }, 'Routing to Sally booking agent');
+        runSallyBookingAgent(sock, jid, text).catch(err => {
+          logger.error({ err: err.message, jid }, 'Sally booking fatal error');
+          sock.sendMessage(jid, { text: '❌ Sally: Booking flow crashed — please try again.' }).catch(() => {});
+        });
+      } else {
+        try {
+          const reply = await getClaudeReply(jid, text);
+          await sock.sendMessage(jid, { text: reply });
+          logger.info({ jid }, 'Reply sent');
+        } catch (err) {
+          logger.error({ err: err.message, jid }, 'Handler error');
+          await sock.sendMessage(jid, {
+            text: 'Something went wrong on my end — please try again in a moment.',
+          }).catch(() => {});
+        }
       }
     }
   });
