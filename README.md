@@ -14,7 +14,7 @@ See [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) for the full stack diagram.
 
 | Area | Route | Purpose |
 |------|-------|---------|
-| Dashboard | `/dashboard` | KPIs, priorities, operating snapshot |
+| City | `/city` | Primary operating surface with live districts, movement, and governed command |
 | Opportunities | `/opportunities` | Pipeline-style deal/opportunity work |
 | Offers | `/offers` | Packaging and offer management |
 | Decisions | `/decisions` | Decision records + recommended paths |
@@ -22,7 +22,7 @@ See [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) for the full stack diagram.
 | Content | `/content` | Content engine workspace |
 | Assets | `/assets` | Asset factory / prep |
 | Briefings | `/briefings` | Weekly operator briefings |
-| Lifestyle | `/lifestyle` | Lifestyle OS slice |
+| Lifestyle | `/lifestyle` | The Quarters — personal infrastructure |
 | Agents | `/agents`, `/superpowers` | Agent definitions + tool routing |
 | Settings | `/settings` | Operator preferences |
 | UAE Car Sales | `/uae-car-sales` | Domain-specific agent demo |
@@ -36,7 +36,7 @@ npm install
 npm run dev
 ```
 
-Open **http://localhost:7483** (default port in `package.json`).
+Open **http://localhost:7483** (default port in `package.json`). Root and `/dashboard` now redirect into **`/city`**, the main product interface.
 
 Other scripts:
 

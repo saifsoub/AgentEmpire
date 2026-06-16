@@ -137,7 +137,7 @@ function PulsingDots() {
 
 // ── CityMap ────────────────────────────────────────────────────────────────────
 
-export function CityMap() {
+export function CityMap({ showDistrictDirectory = true }: { showDistrictDirectory?: boolean }) {
   const [mode, setMode]             = useState<ExecutionMode>('demo');
   const [status, setStatus]         = useState<RunStatus>('idle');
   const [activeRoom, setActiveRoom] = useState<RoomId | null>(null);
@@ -325,54 +325,56 @@ export function CityMap() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
         {/* ── City district map ──────────────────────────────────────────────── */}
-        <div style={{
-          borderRadius: 20, border: '1px solid #27324A',
-          background: 'linear-gradient(160deg, #0d1829 0%, #0a0f1a 55%, #0c1620 100%)',
-          padding: 20, position: 'relative', overflow: 'hidden',
-        }}>
-          {/* Floor grid */}
+        {showDistrictDirectory && (
           <div style={{
-            position: 'absolute', inset: 0, borderRadius: 20, opacity: 0.10, pointerEvents: 'none',
-            backgroundImage: 'linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px)',
-            backgroundSize: '40px 40px',
-            maskImage: 'radial-gradient(ellipse 100% 100% at 50% 50%, black 20%, transparent 100%)',
-            WebkitMaskImage: 'radial-gradient(ellipse 100% 100% at 50% 50%, black 20%, transparent 100%)',
-          }} />
+            borderRadius: 20, border: '1px solid #27324A',
+            background: 'linear-gradient(160deg, #0d1829 0%, #0a0f1a 55%, #0c1620 100%)',
+            padding: 20, position: 'relative', overflow: 'hidden',
+          }}>
+            {/* Floor grid */}
+            <div style={{
+              position: 'absolute', inset: 0, borderRadius: 20, opacity: 0.10, pointerEvents: 'none',
+              backgroundImage: 'linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px)',
+              backgroundSize: '40px 40px',
+              maskImage: 'radial-gradient(ellipse 100% 100% at 50% 50%, black 20%, transparent 100%)',
+              WebkitMaskImage: 'radial-gradient(ellipse 100% 100% at 50% 50%, black 20%, transparent 100%)',
+            }} />
 
-          {/* Header */}
-          <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-            <Map size={13} style={{ color: '#EB5815' }} />
-            <span style={{ fontSize: 10, fontWeight: 700, color: '#7E8AA3', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-              City Districts
-            </span>
-            <span style={{ marginLeft: 'auto', fontSize: 10, color: '#4b5a73' }}>
-              Navigate to any district
-            </span>
-          </div>
+            {/* Header */}
+            <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+              <Map size={13} style={{ color: '#EB5815' }} />
+              <span style={{ fontSize: 10, fontWeight: 700, color: '#7E8AA3', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                City Districts
+              </span>
+              <span style={{ marginLeft: 'auto', fontSize: 10, color: '#4b5a73' }}>
+                Navigate to any district
+              </span>
+            </div>
 
-          {/* District grid */}
-          <div style={{ position: 'relative', zIndex: 2, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-            {DISTRICTS.map(d => {
-              const { Icon } = d;
-              return (
-                <Link key={d.id} href={d.href} style={{ textDecoration: 'none', display: 'block' }}>
-                  <div className="district-card" style={{
-                    borderRadius: 14, border: '1px solid #27324A',
-                    background: 'rgba(18,24,38,0.6)', padding: '13px 14px', cursor: 'pointer',
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
-                      <Icon size={13} style={{ color: d.color }} />
-                      <span style={{ fontSize: 11, fontWeight: 700, color: d.color, letterSpacing: '0.02em' }}>
-                        {d.label}
-                      </span>
+            {/* District grid */}
+            <div style={{ position: 'relative', zIndex: 2, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+              {DISTRICTS.map(d => {
+                const { Icon } = d;
+                return (
+                  <Link key={d.id} href={d.href} style={{ textDecoration: 'none', display: 'block' }}>
+                    <div className="district-card" style={{
+                      borderRadius: 14, border: '1px solid #27324A',
+                      background: 'rgba(18,24,38,0.6)', padding: '13px 14px', cursor: 'pointer',
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+                        <Icon size={13} style={{ color: d.color }} />
+                        <span style={{ fontSize: 11, fontWeight: 700, color: d.color, letterSpacing: '0.02em' }}>
+                          {d.label}
+                        </span>
+                      </div>
+                      <p style={{ fontSize: 10, color: '#7E8AA3', lineHeight: 1.4, margin: 0 }}>{d.description}</p>
                     </div>
-                    <p style={{ fontSize: 10, color: '#7E8AA3', lineHeight: 1.4, margin: 0 }}>{d.description}</p>
-                  </div>
-                </Link>
-              );
-            })}
+                  </Link>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* ── Governor's Office divider ──────────────────────────────────────── */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
