@@ -2,7 +2,14 @@ import { NextResponse } from "next/server";
 import { TOOL_OPTIONS } from "@/lib/agents/definitions";
 
 async function discoverMcpTools() {
-  if (!process.env.MCP_SERVER_URL) return [];
+  const repoTools = [
+    { id: "repo.score_vehicle", label: "Vehicle Scoring Tool", provider: "mcp", description: "Score vehicle based on UAE market demand factors: spec, service history, mileage, and condition.", ready: true, sensitive: false },
+    { id: "repo.compute_opportunity", label: "Opportunity Scoring Tool", provider: "mcp", description: "Compute strategic opportunity score based on fit, revenue, prestige, and complexity.", ready: true, sensitive: false },
+    { id: "repo.compute_empire_score", label: "Empire Scoring Tool", provider: "mcp", description: "Compute overall personal empire score based on assets, revenue, and brand.", ready: true, sensitive: false },
+    { id: "repo.openclaw_whatsapp", label: "OpenClaw WhatsApp", provider: "mcp", description: "Send WhatsApp message/notification via local OpenClaw service.", ready: true, sensitive: true }
+  ];
+
+  if (!process.env.MCP_SERVER_URL) return repoTools;
   try {
     const response = await fetch(process.env.MCP_SERVER_URL, {
       method: "POST",
@@ -11,9 +18,10 @@ async function discoverMcpTools() {
     });
     const payload = await response.json().catch(() => ({}));
     const tools = payload?.result?.tools || payload?.tools || [];
-    return tools.map((tool: any) => ({ id: tool.name || tool.id, label: tool.name || tool.id, provider: "mcp", description: tool.description || "MCP connected tool", ready: response.ok, sensitive: false }));
+    const serverTools = tools.map((tool: any) => ({ id: tool.name || tool.id, label: tool.name || tool.id, provider: "mcp", description: tool.description || "MCP connected tool", ready: response.ok, sensitive: false }));
+    return [...repoTools, ...serverTools];
   } catch {
-    return [];
+    return repoTools;
   }
 }
 
