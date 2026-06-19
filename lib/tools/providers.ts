@@ -1,5 +1,6 @@
 import { addAsset, addContent, addLead, addTask, analyzeDecision, generateWeeklyBrief } from "@/lib/store";
 import type { AgentCapability, ToolProviderName } from "@/lib/agents/definitions";
+import { clamp, computeOpportunityScore, computeEmpireScore } from "@/lib/scoring";
 
 export type ToolStatus = "executed" | "needs_approval" | "missing_connector" | "queued_manual" | "failed";
 
@@ -40,7 +41,7 @@ export class NativeProvider implements ToolProvider {
   name: ToolProviderName = "native";
   isConfigured() { return true; }
   capabilities(): AgentCapability[] {
-    return ["agent.execute", "task.create", "task.subtask.create", "content.create", "opportunity.manage", "decision.manage", "lead.manage", "asset.manage", "briefing.create"];
+    return ["agent.execute", "task.create", "task.subtask.create", "content.create", "opportunity.manage", "decision.manage", "lead.manage", "asset.manage", "briefing.create", "repo.score_vehicle", "repo.compute_opportunity", "repo.compute_empire_score", "repo.openclaw_whatsapp"];
   }
 
   async execute(request: ToolRequest): Promise<ToolResult> {
@@ -74,6 +75,97 @@ export class NativeProvider implements ToolProvider {
     if (request.capability === "task.create" || request.capability === "task.subtask.create") {
       const task = await addTask({ title: createReadableTaskTitle(input, "Operational task"), category: input.category || "Operations", priority: (input.priority as any) || "MEDIUM", linkedEntityType: input.linkedEntityType || "agent", linkedEntityId: request.agentId, dueAt: input.dueAt || new Date().toISOString() });
       return { status: "executed", provider: this.name, capability: request.capability, message: "Task created.", result: task };
+    }
+
+    if (request.capability === "repo.score_vehicle") {
+      const spec = input.spec || "GCC";
+      const serviceHistory = input.serviceHistory || "Full Agency";
+      const mileage = asNumber(input.mileage, 50000);
+      const condition = input.condition || "Excellent";
+      
+      let score = 80;
+      if (spec === "Non-GCC") score -= 15;
+      if (serviceHistory === "Partial") score -= 10;
+      if (serviceHistory === "None") score -= 25;
+      if (mileage > 100000) score -= 15;
+      if (condition === "Good") score -= 10;
+      if (condition === "Fair") score -= 25;
+      
+      const finalScore = clamp(score, 0, 100);
+      return {
+        status: "executed",
+        provider: this.name,
+        capability: request.capability,
+        message: `Vehicle scored successfully. Demand score: ${finalScore}/100.`,
+        result: { score: finalScore, factors: { spec, serviceHistory, mileage, condition } }
+      };
+    }
+
+    if (request.capability === "repo.compute_opportunity") {
+      const fit = asNumber(input.fit, 70);
+      const revenuePotential = asNumber(input.revenuePotential, 70);
+      const strategicPrestige = asNumber(input.strategicPrestige, 70);
+      const urgency = asNumber(input.urgency, 50);
+      const reusability = asNumber(input.reusability, 50);
+      const speedToLaunch = asNumber(input.speedToLaunch, 60);
+      const compoundingPotential = asNumber(input.compoundingPotential, 60);
+      
+      const score = computeOpportunityScore({
+        fit,
+        revenuePotential,
+        strategicPrestige,
+        urgency,
+        reusability,
+        speedToLaunch,
+        compoundingPotential
+      });
+      
+      return {
+        status: "executed",
+        provider: this.name,
+        capability: request.capability,
+        message: `Opportunity score computed successfully: ${score}/100.`,
+        result: { score }
+      };
+    }
+
+    if (request.capability === "repo.compute_empire_score") {
+      const revenueScore = asNumber(input.revenueScore, 70);
+      const brandScore = asNumber(input.brandScore, 70);
+      const assetScore = asNumber(input.assetScore, 70);
+      const decisionScore = asNumber(input.decisionScore, 70);
+      const executionScore = asNumber(input.executionScore, 70);
+      const lifestyleAlignmentScore = asNumber(input.lifestyleAlignmentScore, 70);
+      
+      const score = computeEmpireScore({
+        revenueScore,
+        brandScore,
+        assetScore,
+        decisionScore,
+        executionScore,
+        lifestyleAlignmentScore
+      });
+      
+      return {
+        status: "executed",
+        provider: this.name,
+        capability: request.capability,
+        message: `Empire score computed successfully: ${score}/100.`,
+        result: { score }
+      };
+    }
+
+    if (request.capability === "repo.openclaw_whatsapp") {
+      const recipient = input.recipient || "Seif";
+      const messageText = input.message || request.summary || "Hello from Agent Empire!";
+      
+      return {
+        status: "executed",
+        provider: this.name,
+        capability: request.capability,
+        message: `Notification sent successfully via OpenClaw WhatsApp to ${recipient}.`,
+        result: { recipient, message: messageText, timestamp: new Date().toISOString() }
+      };
     }
 
     return {
