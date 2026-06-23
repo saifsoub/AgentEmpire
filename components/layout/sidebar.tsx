@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeftRight, ShoppingBag, Radio, Scale, DoorOpen, Bot, Hammer, Home, Archive, Map, GraduationCap, Landmark } from "lucide-react";
+import { BarChart3, Bot, BriefcaseBusiness, Car, CheckSquare, FileChartColumn, FileStack, FileText, LayoutDashboard, Settings, ShieldCheck, Users, Wallet, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const districts = [
