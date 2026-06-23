@@ -1,0 +1,55 @@
+services:
+  agent-empire:
+    build: .
+    container_name: agent-empire
+    restart: unless-stopped
+    env_file: .env.local
+    environment:
+      - NODE_ENV=production
+      - DATA_DIR=/app/var
+    volumes:
+      - empire-data:/app/var
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      # HTTP
+      - "traefik.http.routers.agent-empire.rule=Host(`srv1446443.hstgr.cloud`)"
+      - "traefik.http.routers.agent-empire.entrypoints=web"
+      - "traefik.http.services.agent-empire.loadbalancer.server.port=3000"
+      # HTTPS — uncomment once Traefik has a cert resolver configured
+      # - "traefik.http.routers.agent-empire-https.rule=Host(`srv1446443.hstgr.cloud`)"
+      # - "traefik.http.routers.agent-empire-https.entrypoints=websecure"
+      # - "traefik.http.routers.agent-empire-https.tls.certresolver=letsencrypt"
+      # - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      # - "traefik.http.routers.agent-empire.middlewares=redirect-to-https"
+
+  openclaw:
+    build: ./services/openclaw
+    container_name: openclaw
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=4096
+      - SESSION_DIR=/app/data/session
+      - BOT_NAME=${OPENCLAW_BOT_NAME:-OpenClaw}
+      - SYSTEM_PROMPT=${OPENCLAW_SYSTEM_PROMPT:-}
+      - CLAUDE_MODEL=${OPENCLAW_CLAUDE_MODEL:-claude-haiku-4-5-20251001}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - LOG_LEVEL=${OPENCLAW_LOG_LEVEL:-info}
+    volumes:
+      - openclaw-data:/app/data
+    ports:
+      - "4096:4096"
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=false"
+
+volumes:
+  empire-data:
+  openclaw-data:
+
+networks:
+  traefik:
+    external: true
