@@ -50,6 +50,11 @@ Data persists to `data/demo-db.json` (file-backed demo store). Production path: 
 
 ---
 
+
+## GitHub automations
+
+- [GitHub-native Secret Rotator setup](docs/GITHUB-SECRET-ROTATOR.md) explains how to run the Secret Rotator API generator from GitHub Actions, configure provider secrets, validate schedules, and trigger manual rotations without installing it in a temporary runtime.
+
 ## Agent model
 
 Agents are defined in `lib/agents/definitions.ts` with:
