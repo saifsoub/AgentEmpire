@@ -12,5 +12,21 @@ services:
     volumes:
       - empire-data:/app/var
 
+  openclaw:
+    build: ./services/openclaw
+    container_name: openclaw
+    restart: unless-stopped
+    env_file: .env.local
+    environment:
+      - NODE_ENV=production
+      - PORT=4096
+      - SESSION_DIR=/app/data/session
+      - BOT_NAME=Sally
+    volumes:
+      - openclaw-session:/app/data/session
+    ports:
+      - "4096:4096"
+
 volumes:
   empire-data:
+  openclaw-session:
