@@ -60,7 +60,7 @@ Agents are defined in `lib/agents/definitions.ts` with:
 
 Tool routing: `lib/tools/router.ts` + `lib/tools/providers.ts`.
 
-Architecture: [ARCHITECTURE.md](ARCHITECTURE.md) · S-OS wiring (when ready): [docs/INTEGRATION-S-OS.md](docs/INTEGRATION-S-OS.md)
+Architecture: [ARCHITECTURE.md](ARCHITECTURE.md) · S-OS wiring (when ready): [docs/INTEGRATION-S-OS.md](docs/INTEGRATION-S-OS.md) · Agent onboarding: [docs/AGENT_ONBOARDING_PLAYBOOK.md](docs/AGENT_ONBOARDING_PLAYBOOK.md)
 
 ---
 
