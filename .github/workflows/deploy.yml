@@ -1,8 +1,6 @@
 name: Deploy AgentEmpire
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -37,12 +35,12 @@ jobs:
             # Create .env.local on first deploy
             if [ ! -f .env.local ]; then
               cat > .env.local <<ENVEOF
-ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
-GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}
-COMPOSIO_API_KEY=${{ secrets.COMPOSIO_API_KEY }}
-COMPOSIO_USER_ID=saifssss@gmail.com
-LINEAR_API_KEY=${{ secrets.LINEAR_API_KEY }}
-ENVEOF
+            ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
+            GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}
+            COMPOSIO_API_KEY=${{ secrets.COMPOSIO_API_KEY }}
+            COMPOSIO_USER_ID=saifssss@gmail.com
+            LINEAR_API_KEY=${{ secrets.LINEAR_API_KEY }}
+            ENVEOF
             fi
 
             # Patch critical keys every deploy so rotating secrets takes effect
