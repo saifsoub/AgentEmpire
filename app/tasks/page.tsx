@@ -29,7 +29,7 @@ export default async function TasksPage() {
   const doneCount = tasks.filter(t => t.status === "DONE").length;
 
   return (
-    <AppShell pathname="/tasks" title="Tasks" subtitle="Track execution across every pillar of your empire.">
+    <AppShell pathname="/tasks" title="Work Yards" subtitle="Execution queues, work orders, and completed output across the city.">
       <div className="grid gap-6 xl:grid-cols-[1.4fr_0.6fr]">
         <div className="grid gap-6">
           <div className="grid gap-4 md:grid-cols-3">

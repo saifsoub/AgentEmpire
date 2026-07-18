@@ -8,7 +8,7 @@ import { getDb } from "@/lib/store";
 export default async function OffersPage() {
   const db = await getDb();
   return (
-    <AppShell pathname="/offers" title="Offers" subtitle="Package your expertise into compelling commercial offerings.">
+    <AppShell pathname="/offers" title="The Marketplace" subtitle="Offers, assets, and commercial capabilities arranged for sale.">
       <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <div className="grid gap-4 md:grid-cols-2">
           {db.offers.map(offer => (
