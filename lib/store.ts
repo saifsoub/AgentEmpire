@@ -21,6 +21,17 @@ const cleanTasksInMemory = (db: DemoDb) => { const seen = new Set<string>(); con
 const starterAgents = (): StoredAgent[] => DEFAULT_AGENTS.map(agent => ({ id: agent.id, name: agent.name, description: agent.description, instructions: agent.instructions, selectedTools: agent.selectedTools, preferredProviders: agent.preferredProviders, approvalPolicy: agent.approvalPolicy, enabled: agent.enabled, createdAt: now(), updatedAt: now() }));
 
 export async function getDb() { return readDb(); }
+export async function getDbEvidence(): Promise<{ db: DemoDb; error?: string }> {
+  try {
+    const raw = await readFile(DB_PATH, "utf8");
+    return { db: { ...DEFAULT_DB, ...JSON.parse(raw) } as DemoDb };
+  } catch (error) {
+    if (error && typeof error === "object" && "code" in error && error.code === "ENOENT") {
+      return { db: { ...DEFAULT_DB } };
+    }
+    return { db: { ...DEFAULT_DB }, error: "Repository store could not be read." };
+  }
+}
 export async function getAgents() { const db = await readDb(); if (!db.agents?.length) { db.agents = starterAgents(); await writeDb(db); } return db.agents; }
 export async function getAgent(agentId: string) { const agents = await getAgents(); return agents.find(agent => agent.id === agentId) ?? agents[0]; }
 export async function createAgent(input: Partial<StoredAgent>) { const db = await readDb(); const item: StoredAgent = { id: id("agent"), name: input.name || "New Agent", description: input.description || "Custom operational agent", instructions: input.instructions || "Do useful internal work. Create tasks/subtasks when needed. Ask approval only for sensitive external actions.", selectedTools: input.selectedTools?.length ? input.selectedTools : ["agent.execute", "task.create", "task.subtask.create"], preferredProviders: input.preferredProviders?.length ? input.preferredProviders : ["native", "composio", "mcp", "webhook", "manual"], approvalPolicy: input.approvalPolicy?.length ? input.approvalPolicy : ["external_send", "publish", "payment", "commitment", "delete", "spend_money"], enabled: input.enabled ?? true, createdAt: now(), updatedAt: now() }; db.agents = [item, ...(db.agents ?? [])]; await writeDb(db); return item; }

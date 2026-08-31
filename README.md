@@ -11,6 +11,8 @@ See [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) for the full stack diagram.
 The canonical control-plane decision, donor-component merge map, acceptance
 boundary, and implementation backlog are documented in
 [docs/CONTROL-PLANE-CONSOLIDATION.md](docs/CONTROL-PLANE-CONSOLIDATION.md).
+The executable CP-01 route/API/component inventory and verified donor decisions
+are recorded in [docs/CONTROL-PLANE-AUDIT.md](docs/CONTROL-PLANE-AUDIT.md).
 
 ---
 
@@ -18,7 +20,8 @@ boundary, and implementation backlog are documented in
 
 | Area | Route | Purpose |
 |------|-------|---------|
-| Dashboard | `/dashboard` | KPIs, priorities, operating snapshot |
+| Control | `/control` | Repository-backed health, exceptions, approvals, and work |
+| Dashboard | `/dashboard` | Legacy alias that currently preserves the `/city` journey |
 | Opportunities | `/opportunities` | Pipeline-style deal/opportunity work |
 | Offers | `/offers` | Packaging and offer management |
 | Decisions | `/decisions` | Decision records + recommended paths |
@@ -48,9 +51,10 @@ Other scripts:
 npm run build      # production build
 npm run typecheck  # TypeScript
 npm run test       # vitest
+npm run test:e2e   # Playwright responsive and keyboard contract
 ```
 
-Data persists to `data/demo-db.json` (file-backed demo store). Production path: Supabase via S-OS or direct client.
+Data persists to `${DATA_DIR:-<repo>/var}/empire-db.json` (file-backed demo store). Production connectivity remains owner-gated behind the S-OS integration boundary.
 
 ---
 
@@ -100,7 +104,7 @@ You (operator)
 app/              # routes (dashboard, opportunities, …)
 components/       # UI + layout (sidebar, app-shell)
 lib/              # store, agents, tools, scoring, validators
-data/demo-db.json # demo persistence
+var/empire-db.json  # default demo persistence (override with DATA_DIR)
 skills/           # domain skill packs (e.g. uae-car-sales)
 ```
 
