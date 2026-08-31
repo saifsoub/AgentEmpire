@@ -8,6 +8,10 @@ Dark-mode **operator cockpit** for running multiple businesses from one surface 
 
 See [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) for the full stack diagram.
 
+The canonical control-plane decision, donor-component merge map, acceptance
+boundary, and implementation backlog are documented in
+[docs/CONTROL-PLANE-CONSOLIDATION.md](docs/CONTROL-PLANE-CONSOLIDATION.md).
+
 ---
 
 ## Modules
