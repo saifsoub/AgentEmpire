@@ -9,6 +9,9 @@ on:
       - "package.json"
       - "package-lock.json"
       - ".github/workflows/ci.yml"
+  push:
+    branches:
+      - "seif/doneai-99-team-will-finish-the-whole-city-in-less-than-the-sla-1c99"
   workflow_dispatch:
 
 permissions:
