@@ -9,6 +9,9 @@ changing the core.
 Source: [`lib/city-core.ts`](../lib/city-core.ts) · Tests:
 [`__tests__/city-core.test.ts`](../__tests__/city-core.test.ts)
 
+The City Core change is validated by the non-deploying AgentEmpire CI gate:
+TypeScript typecheck plus the full Vitest suite must pass before merge review.
+
 ## Phase A — Ontology
 
 Thirteen canonical entity kinds (`ONTOLOGY_KINDS`), each documented in
