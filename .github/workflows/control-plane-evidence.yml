@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - seif/outs-80-control-plane-consolidation
 
 permissions:
   contents: read
