@@ -6,8 +6,10 @@ Treasury, Academy, …) depends on. Institutions are represented **through**
 City Core — they never redefine it, and new institutions can be added without
 changing the core.
 
-Source: [`lib/city-core.ts`](../lib/city-core.ts) · Tests:
-[`__tests__/city-core.test.ts`](../__tests__/city-core.test.ts)
+Core source: [`lib/city-core.ts`](../lib/city-core.ts) · Agent/skill profiles:
+[`lib/city-agent-profiles.ts`](../lib/city-agent-profiles.ts) · Tests:
+[`__tests__/city-core.test.ts`](../__tests__/city-core.test.ts) and
+[`__tests__/city-agent-profiles.test.ts`](../__tests__/city-agent-profiles.test.ts).
 
 The City Core change is validated by the non-deploying AgentEmpire CI gate:
 TypeScript typecheck plus the full Vitest suite must pass before merge review.
@@ -47,7 +49,7 @@ through. It enforces three invariants:
 The canonical claim order is `GOVERNANCE_FLOW` (capture → evidence →
 verification → approval → completion).
 
-## Phase D — Registries & repository
+## Phase D — Registries, profiles & repository
 
 `CITY_REPOSITORY` maps the `city/*` folder layout to ontology kinds. Each kind
 is backed by a `Registry` (single source of truth):
@@ -57,6 +59,16 @@ is backed by a `Registry` (single source of truth):
 - `roleRegistry` — a role for every authority referenced by an institution.
 - `permissionRegistry` — baseline permissions (sensitive ones gate approval).
 - `workflowRegistry` — workflows, each referencing the permissions it needs.
+- `agentRegistry` — canonical `AgentProfile` records with explicit district,
+  optional institution, roles, optional passport ID, and agent lifecycle state.
+- `skillProfileRegistry` — evidence-bearing `SkillProfile` records linked to a
+  registered agent. Skill proficiency never grants authority by itself.
+
+`registerAgentProfile(...)` prevents orphaned institution references and
+institution/district mismatches. `registerSkillProfile(...)` prevents orphaned
+skill profiles and mismatched agent-to-skill-profile links. These are shared
+relationship rules only; institution-specific admissions, curriculum,
+treasury, publishing, or other policies stay outside the shared core.
 
 ## Self-inspection (for the hourly inspector)
 
