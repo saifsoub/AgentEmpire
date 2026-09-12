@@ -1,14 +1,56 @@
-import { getAgent, logAgentRun, createApproval, findMatchingActiveTask, closeMatchedTask } from "@/lib/store";
+import { getAgent, getDb, logAgentRun, createApproval, findMatchingActiveTask, closeMatchedTask } from "@/lib/store";
+import { getAgentDefinition } from "@/lib/agents/definitions";
 import type { AgentCapability, ToolProviderName } from "@/lib/agents/definitions";
 import { getProviders, type ToolResult } from "@/lib/tools/providers";
+import { executionModeDescription, providerAllowed, type ExecutionMode } from "@/lib/tools/execution-policy";
 
 const toCapability = (value: string) => value as AgentCapability;
 const toProvider = (value: string) => value as ToolProviderName;
 const isSensitiveCapability = (capability: string) => ["email.draft", "calendar.create"].includes(capability);
 
-export async function routeAgentExecution(agentId: string, inputs: Record<string, string>) {
-  const agent = await getAgent(agentId);
+async function getAgentForInspection(agentId: string) {
+  const db = await getDb();
+  if (db.agents?.length) return db.agents.find(agent => agent.id === agentId) ?? db.agents[0];
+  return getAgentDefinition(agentId);
+}
+
+export async function routeAgentExecution(
+  agentId: string,
+  inputs: Record<string, string>,
+  options: { executionMode?: ExecutionMode } = {}
+) {
+  const executionMode = options.executionMode ?? "inspect";
+  const agent = executionMode === "inspect" ? await getAgentForInspection(agentId) : await getAgent(agentId);
   const providers = getProviders();
+
+  if (executionMode === "inspect") {
+    const executions = agent.selectedTools.map(selectedTool => ({
+      status: "preview" as const,
+      provider: toProvider(agent.preferredProviders[0] || "manual"),
+      capability: toCapability(selectedTool),
+      message: `Preview only: ${selectedTool} was not executed.`
+    }));
+
+    return {
+      agent,
+      executionMode,
+      executionPolicy: executionModeDescription(executionMode),
+      executedAt: new Date().toISOString(),
+      matchedTaskId: undefined,
+      createdRunIds: [],
+      createdApprovalIds: [],
+      providersChecked: providers.map(p => ({ name: p.name, configured: p.isConfigured(), capabilities: p.capabilities() })),
+      executions,
+      summary: {
+        preview: executions.length,
+        executed: 0,
+        approvals: 0,
+        manual: 0,
+        failed: 0
+      }
+    };
+  }
+
   const executions: ToolResult[] = [];
   const createdRunIds: string[] = [];
   const createdApprovalIds: string[] = [];
@@ -20,6 +62,8 @@ export async function routeAgentExecution(agentId: string, inputs: Record<string
 
     for (const preferredProvider of agent.preferredProviders) {
       const providerName = toProvider(preferredProvider);
+      if (!providerAllowed(providerName, executionMode)) continue;
+
       const provider = providers.find(p => p.name === providerName);
       if (!provider) continue;
       if (!provider.capabilities().includes(capability)) continue;
@@ -77,7 +121,9 @@ export async function routeAgentExecution(agentId: string, inputs: Record<string
         status: "queued_manual",
         provider: "manual",
         capability,
-        message: `No configured provider executed ${capability}. The action remains available for manual/provider follow-up.`
+        message: executionMode === "internal"
+          ? `No permitted internal provider executed ${capability}. Remote providers remain blocked in internal mode.`
+          : `No configured provider executed ${capability}. The action remains available for manual/provider follow-up.`
       };
       executions.push(fallback);
       const run = await logAgentRun({ agentId, objective: inputs.objective || "", provider: fallback.provider, capability: fallback.capability, status: fallback.status, message: fallback.message });
@@ -90,6 +136,8 @@ export async function routeAgentExecution(agentId: string, inputs: Record<string
 
   return {
     agent,
+    executionMode,
+    executionPolicy: executionModeDescription(executionMode),
     executedAt: new Date().toISOString(),
     matchedTaskId: matchedTask?.id,
     createdRunIds,
@@ -97,6 +145,7 @@ export async function routeAgentExecution(agentId: string, inputs: Record<string
     providersChecked: providers.map(p => ({ name: p.name, configured: p.isConfigured(), capabilities: p.capabilities() })),
     executions,
     summary: {
+      preview: 0,
       executed: executions.filter(r => r.status === "executed").length,
       approvals: executions.filter(r => r.status === "needs_approval").length,
       manual: executions.filter(r => r.status === "queued_manual").length,
