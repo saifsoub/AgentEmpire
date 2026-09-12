@@ -4,14 +4,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        app: "#0A0F1A",
-        surface: "#121826",
-        surface2: "#182133",
-        border: "#27324A",
-        primary: "#F3F6FB",
-        secondary: "#B8C2D6",
-        muted: "#7E8AA3",
-        accent: "#EB5815"
+        app: "#05070F",
+        surface: "#0D1422",
+        surface2: "#151F32",
+        border: "#28344C",
+        primary: "#EEF3FA",
+        secondary: "#B8C4D4",
+        muted: "#76849D",
+        accent: "#D4B45F"
       },
       boxShadow: { soft: "0 10px 30px rgba(0,0,0,0.25)" }
     }
