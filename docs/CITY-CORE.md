@@ -7,9 +7,12 @@ City Core — they never redefine it, and new institutions can be added without
 changing the core.
 
 Core source: [`lib/city-core.ts`](../lib/city-core.ts) · Agent/skill profiles:
-[`lib/city-agent-profiles.ts`](../lib/city-agent-profiles.ts) · Tests:
-[`__tests__/city-core.test.ts`](../__tests__/city-core.test.ts) and
-[`__tests__/city-agent-profiles.test.ts`](../__tests__/city-agent-profiles.test.ts).
+[`lib/city-agent-profiles.ts`](../lib/city-agent-profiles.ts) · Governance flows:
+[`lib/city-governance-flows.ts`](../lib/city-governance-flows.ts).
+
+Tests: [`__tests__/city-core.test.ts`](../__tests__/city-core.test.ts),
+[`__tests__/city-agent-profiles.test.ts`](../__tests__/city-agent-profiles.test.ts),
+and [`__tests__/city-governance-flows.test.ts`](../__tests__/city-governance-flows.test.ts).
 
 The City Core change is validated by the non-deploying AgentEmpire CI gate:
 TypeScript typecheck plus the full Vitest suite must pass before merge review.
@@ -49,6 +52,18 @@ through. It enforces three invariants:
 The canonical claim order is `GOVERNANCE_FLOW` (capture → evidence →
 verification → approval → completion).
 
+`city-governance-flows.ts` adds the institution-neutral governance flows needed
+around that core gate:
+
+- role inheritance resolves direct + parent permissions and fails closed on
+  missing parents or cycles;
+- delegation is permission-subset, scope and time bounded, evidence-backed,
+  revocable and approval-gated for sensitive authority;
+- delegation does not transfer identity and re-delegation is denied by default;
+- escalation records have explicit triggers and legal state transitions;
+- activation guards keep identity, authority, evidence, human approval and
+  runtime verification as separate required facts.
+
 ## Phase D — Registries, profiles & repository
 
 `CITY_REPOSITORY` maps the `city/*` folder layout to ontology kinds. Each kind
@@ -63,6 +78,8 @@ is backed by a `Registry` (single source of truth):
   optional institution, roles, optional passport ID, and agent lifecycle state.
 - `skillProfileRegistry` — evidence-bearing `SkillProfile` records linked to a
   registered agent. Skill proficiency never grants authority by itself.
+- `delegationRegistry` — active/revoked delegated-authority records.
+- `escalationRegistry` — governed escalation records and resolutions.
 
 `registerAgentProfile(...)` prevents orphaned institution references and
 institution/district mismatches. `registerSkillProfile(...)` prevents orphaned
