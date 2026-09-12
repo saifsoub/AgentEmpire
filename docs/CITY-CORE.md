@@ -93,3 +93,13 @@ treasury, publishing, or other policies stay outside the shared core.
 `CITY_ACCEPTANCE_CRITERIA`; `cityCoreHealthy()` is the boolean rollup. The test
 suite asserts all eight criteria pass, so the foundation is verified on every
 run.
+
+## Exact-head acceptance protocol
+
+Merge review is tied to the **current PR head**, not an earlier passing commit.
+When the head changes, GitHub Actions must produce a fresh validation run for
+that exact SHA covering `npm run typecheck` and the full `npm test` suite.
+A missing run is treated as missing acceptance evidence, even when the workflow
+file and prior local/branch results are green. This documentation-only update
+also provides a branch-push event so the CI path can be re-observed without
+changing City Core runtime behavior.
