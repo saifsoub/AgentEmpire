@@ -11,6 +11,8 @@ Source: [`lib/city-core.ts`](../lib/city-core.ts) · Tests:
 
 The City Core change is validated by the non-deploying AgentEmpire CI gate:
 TypeScript typecheck plus the full Vitest suite must pass before merge review.
+A fresh branch-push CI run is required after rebasing or verification changes;
+local test counts alone are supporting evidence, not merge acceptance.
 
 ## Phase A — Ontology
 
