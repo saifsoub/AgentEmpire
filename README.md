@@ -6,7 +6,7 @@
 
 Dark-mode **operator cockpit** for running multiple businesses from one surface — opportunities, offers, decisions, content, agents, and weekly briefings. Built for **Seif / DoneAi / S/** workflows; pairs with [S-OS](https://github.com/saifsoub/S-OS) (control plane) and [n8n](https://github.com/saifsoub/n8n) (automation runtime).
 
-See [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) for the full stack diagram.
+See [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) for the full stack diagram and [docs/RUNTIME.md](docs/RUNTIME.md) for the recovered Meridian/AgentEmpire runtime, deployment and verification contract.
 
 ---
 
@@ -31,19 +31,25 @@ See [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) for the full stack diagram.
 
 ## Quick start
 
+Use the committed lockfile for a reproducible install:
+
 ```bash
-npm install
+npm ci --no-audit --no-fund
 npm run dev
 ```
 
 Open **http://localhost:7483** (default port in `package.json`).
 
-Other scripts:
+Repository helpers and verification:
 
 ```bash
-npm run build      # production build
-npm run typecheck  # TypeScript
-npm run test       # vitest
+npm run install:local   # reproducible npm ci
+npm run boot:local      # local Next.js dev server
+npm run typecheck       # TypeScript
+npm run test            # vitest
+npm run build           # production build
+npm run deploy:verify   # typecheck + test + production build
+npm run start           # production Node start, after build
 ```
 
 Data persists to `data/demo-db.json` (file-backed demo store). Production path: Supabase via S-OS or direct client.
@@ -60,7 +66,7 @@ Agents are defined in `lib/agents/definitions.ts` with:
 
 Tool routing: `lib/tools/router.ts` + `lib/tools/providers.ts`.
 
-Architecture: [ARCHITECTURE.md](ARCHITECTURE.md) · S-OS wiring (when ready): [docs/INTEGRATION-S-OS.md](docs/INTEGRATION-S-OS.md)
+Architecture: [ARCHITECTURE.md](ARCHITECTURE.md) · Runtime: [docs/RUNTIME.md](docs/RUNTIME.md) · S-OS wiring (when ready): [docs/INTEGRATION-S-OS.md](docs/INTEGRATION-S-OS.md)
 
 ---
 
@@ -107,6 +113,7 @@ skills/           # domain skill packs (e.g. uae-car-sales)
 - Email **draft** only through tools marked sensitive; sending is human-only.
 - Calendar external invites may require approval.
 - No secrets in repo — use `.env.local` (see `.env.example` if present).
+- Provider and connector credentials are server-only by default; never expose them through `NEXT_PUBLIC_` variables.
 
 Aligns with S-OS `draft` / `dry_run` / `live` + `approval_status` model.
 
