@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { ArrowLeftRight, ShoppingBag, Radio, Scale, DoorOpen, Bot, Hammer, Home, Archive, Map, GraduationCap, Landmark } from "lucide-react";
+import { ArrowLeftRight, ShoppingBag, Radio, Scale, DoorOpen, Bot, Hammer, Home, Archive, Map, GraduationCap, Landmark, LayoutDashboard } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const districts = [
+  { href: "/dashboard",       label: "Control Panel",    icon: LayoutDashboard           },
   { href: "/city",            label: "S/ City",          icon: Map,           city: true  },
   { href: "/city/university", label: "S/ University",    icon: GraduationCap              },
   { href: "/city/banking",    label: "S/ Banking",       icon: Landmark                   },
