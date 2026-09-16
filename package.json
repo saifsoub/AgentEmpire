@@ -12,7 +12,9 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "secret-rotator:status": "scripts/secret-rotator-github.sh status",
+    "secret-rotator:scheduler-check": "scripts/secret-rotator-github.sh scheduler-check"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.80.0",
