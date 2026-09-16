@@ -14,7 +14,7 @@ See [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) for the full stack diagram and [docs/
 
 | Area | Route | Purpose |
 |------|-------|---------|
-| Dashboard | `/dashboard` | KPIs, priorities, operating snapshot |
+| Dashboard | `/dashboard` | S/ Agency control panel with KPIs, approvals, and execution snapshot |
 | Opportunities | `/opportunities` | Pipeline-style deal/opportunity work |
 | Offers | `/offers` | Packaging and offer management |
 | Decisions | `/decisions` | Decision records + recommended paths |
@@ -51,6 +51,32 @@ npm run build           # production build
 npm run deploy:verify   # typecheck + test + production build
 npm run start           # production Node start, after build
 ```
+
+## S/ Agency control panel template rollout
+
+Environment contract for this frontend template:
+
+```bash
+cp .env.example .env.local
+npm run install:local
+npm run boot:local
+```
+
+Deploy/verify path:
+
+```bash
+npm run deploy:verify   # typecheck + tests + production build
+bash infra/deploy.sh    # server pull + docker compose restart
+```
+
+Suggested enhancements from the template review:
+
+- Add a light-mode variant of the control panel using mirrored design tokens for better daytime readability.
+- Replace static KPI examples with live aggregates from `/api/agents`, `/api/approvals`, and `/api/tasks` for real-time operator confidence.
+- Add status color semantics (`healthy`, `degraded`, `blocked`) to avoid relying on text alone.
+- Add keyboard shortcuts for high-frequency actions (`open approvals`, `run selected agent`, `open decision queue`).
+- Introduce chart sparklines for trend context directly in KPI cards without forcing route changes.
+- Add route-level loading and error states for dashboard modules to keep UI deterministic during API delays.
 
 Data persists to `data/demo-db.json` (file-backed demo store). Production path: Supabase via S-OS or direct client.
 

@@ -16,3 +16,44 @@ html, body { min-height: 100%; background: var(--bg-app); color: var(--text-prim
 body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
 * { border-color: var(--border); }
 .card { @apply bg-surface border border-border rounded-[1.25rem] shadow-soft; }
+
+.agency-template {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 100% at 0% 0%, rgba(235, 88, 21, 0.16), rgba(235, 88, 21, 0) 50%),
+    radial-gradient(80% 90% at 100% 100%, rgba(61, 104, 199, 0.18), rgba(61, 104, 199, 0) 48%),
+    #0f1726;
+}
+
+.agency-grid-bg {
+  background-image:
+    linear-gradient(to right, rgba(39, 50, 74, 0.45) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(39, 50, 74, 0.45) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(circle at center, black 45%, transparent 100%);
+}
+
+.agency-panel {
+  border: 1px solid rgba(184, 194, 214, 0.2);
+  background: linear-gradient(180deg, rgba(24, 33, 51, 0.95) 0%, rgba(18, 24, 38, 0.95) 100%);
+  box-shadow: 0 10px 30px rgba(3, 6, 12, 0.35);
+}
+
+.agency-heading {
+  font-family: "Wix Madefor Text", "Avenir Next", "Segoe UI", sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.agency-kicker {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(184, 194, 214, 0.24);
+  border-radius: 9999px;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #d0d9e9;
+  background: rgba(18, 24, 38, 0.75);
+}
