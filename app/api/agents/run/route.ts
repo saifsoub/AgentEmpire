@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { routeAgentExecution } from "@/lib/tools/router";
+import { touchAgentHeartbeat } from "@/lib/store";
 
 export async function POST(request: Request) {
   try {
@@ -7,6 +8,7 @@ export async function POST(request: Request) {
     const agentId = body.agentId || "content-strategist";
     const inputs = body.inputs || {};
 
+    await touchAgentHeartbeat(agentId).catch(() => null);
     const result = await routeAgentExecution(agentId, inputs);
 
     return NextResponse.json({
