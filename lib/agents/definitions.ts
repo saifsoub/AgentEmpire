@@ -12,7 +12,11 @@ export type AgentCapability =
   | "briefing.create"
   | "email.draft"
   | "calendar.create"
-  | "github.issue.create";
+  | "github.issue.create"
+  | "repo.score_vehicle"
+  | "repo.compute_opportunity"
+  | "repo.compute_empire_score"
+  | "repo.openclaw_whatsapp";
 
 export interface AgentToolOption {
   id: AgentCapability;
@@ -64,7 +68,11 @@ export const TOOL_OPTIONS: AgentToolOption[] = [
   { id: "briefing.create", label: "Briefings", provider: "native", description: "Create briefings and operating notes." },
   { id: "email.draft", label: "Email Draft", provider: "composio", description: "Prepare email drafts through connected providers; sending requires approval.", sensitive: true },
   { id: "calendar.create", label: "Calendar", provider: "composio", description: "Prepare calendar actions through connected providers; external invites may require approval.", sensitive: true },
-  { id: "github.issue.create", label: "GitHub Issue", provider: "composio", description: "Create or prepare GitHub issues through connected providers." }
+  { id: "github.issue.create", label: "GitHub Issue", provider: "composio", description: "Create or prepare GitHub issues through connected providers." },
+  { id: "repo.score_vehicle", label: "Vehicle Scoring Tool", provider: "native", description: "Score vehicle based on UAE market demand factors: spec, service history, mileage, and condition." },
+  { id: "repo.compute_opportunity", label: "Opportunity Scoring Tool", provider: "native", description: "Compute strategic opportunity score based on fit, revenue, prestige, and complexity." },
+  { id: "repo.compute_empire_score", label: "Empire Scoring Tool", provider: "native", description: "Compute overall personal empire score based on assets, revenue, and brand." },
+  { id: "repo.openclaw_whatsapp", label: "OpenClaw WhatsApp", provider: "native", description: "Send WhatsApp message/notification via local OpenClaw service.", sensitive: true }
 ];
 
 export const DEFAULT_AGENTS: AgentDefinition[] = [
