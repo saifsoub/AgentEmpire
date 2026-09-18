@@ -6,6 +6,12 @@ nearly year-round, it blends urban excitement with natural charm — and a
 diverse cultural scene that reflects its dynamic, multicultural population of
 agents and humans.
 
+## City Core (foundation)
+
+Before any institution or workflow, every City entity obeys the canonical
+lifecycle, permission, schema, and governance rules in `lib/city-core.ts`. See
+[CITY-CORE.md](CITY-CORE.md).
+
 ## The World (`/city`)
 
 The city page opens with a skyline panorama (sunset over the bay, the S/ Sign

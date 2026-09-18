@@ -10,3 +10,7 @@ export const enrollAgentSchema = z.object({ agentId: z.string().min(1), programI
 export const createWalletSchema = z.object({ agentId: z.string().min(1), currency: z.string().optional(), dailyLimit: z.coerce.number().min(0).optional() });
 export const requestWalletTransactionSchema = z.object({ walletId: z.string().min(1), type: z.enum(["TOP_UP", "WITHDRAWAL", "AGENT_SPEND", "TRANSFER"]), amount: z.coerce.number().positive(), memo: z.string().default(""), requestedBy: z.enum(["owner", "agent"]).default("owner"), gateway: z.string().default("internal") });
 export const updateSettingsSchema = z.object({ empireName: z.string().min(1).default("Personal Empire"), ownerName: z.string().default(""), currency: z.string().default("AED"), timezone: z.string().default("Asia/Dubai"), primaryMarket: z.string().default(""), weekStartsOn: z.enum(["monday", "sunday"]).default("monday") });
+// City Core (foundation layer in lib/city-core.ts)
+const permissionTierSchema = z.enum(["OBSERVE", "OPERATE", "APPROVE", "GOVERN"]);
+export const permissionUpgradeRequestSchema = z.object({ agentId: z.string().min(1), currentTier: permissionTierSchema, requestedTier: permissionTierSchema, justification: z.string().min(3) });
+export const evidenceRecordSchema = z.object({ kind: z.enum(["commit", "pull_request", "file", "screenshot", "decision_note", "test_run", "deployment"]), uri: z.string().min(1), summary: z.string().default(""), linkedFlowIds: z.array(z.string()).default([]), verified: z.coerce.boolean().default(false) });
