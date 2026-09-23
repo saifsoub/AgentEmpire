@@ -25,7 +25,7 @@ See [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) for the full stack diagram and [docs/
 | Lifestyle | `/lifestyle` | Lifestyle OS slice |
 | Agents | `/agents`, `/superpowers` | Agent definitions + tool routing |
 | Settings | `/settings` | Operator preferences |
-| UAE Car Sales | `/uae-car-sales` | Domain-specific agent demo |
+| UAE Car Sales | `/uae-car-sales` | Domain-specific agent execution |
 
 ---
 
@@ -52,7 +52,7 @@ npm run deploy:verify   # typecheck + test + production build
 npm run start           # production Node start, after build
 ```
 
-Data persists to `data/demo-db.json` (file-backed demo store). Production path: Supabase via S-OS or direct client.
+Runtime state is persisted by the configured store. Agent/API paths must fail visibly when a required provider or credential is unavailable; they must not fabricate a successful result.
 
 ---
 
@@ -66,7 +66,7 @@ Agents are defined in `lib/agents/definitions.ts` with:
 
 Tool routing: `lib/tools/router.ts` + `lib/tools/providers.ts`.
 
-Architecture: [ARCHITECTURE.md](ARCHITECTURE.md) · Runtime: [docs/RUNTIME.md](docs/RUNTIME.md) · S-OS wiring (when ready): [docs/INTEGRATION-S-OS.md](docs/INTEGRATION-S-OS.md)
+Architecture: [ARCHITECTURE.md](ARCHITECTURE.md) · Runtime: [docs/RUNTIME.md](docs/RUNTIME.md) · S-OS wiring: [docs/INTEGRATION-S-OS.md](docs/INTEGRATION-S-OS.md)
 
 ---
 
@@ -80,8 +80,7 @@ You (operator)
     → External APIs
 ```
 
-**Today:** Empire runs standalone with demo DB and Composio-ready tools.  
-**Next:** POST agent objectives to S-OS `s-agentos-command` webhook with `run_mode: dry_run`, then graduate to approved `live` execution.
+**Operating rule:** normal use is real execution through configured providers and integrations. Verification and dry-run behavior belongs to test/CI paths, not the owner-facing default.
 
 ---
 
@@ -102,7 +101,7 @@ You (operator)
 app/              # routes (dashboard, opportunities, …)
 components/       # UI + layout (sidebar, app-shell)
 lib/              # store, agents, tools, scoring, validators
-data/demo-db.json # demo persistence
+data/             # persisted application state
 skills/           # domain skill packs (e.g. uae-car-sales)
 ```
 
