@@ -57,29 +57,6 @@ Respond with ONLY valid JSON matching this exact structure:
 Be direct, specific, and prioritized. Reference actual data points. No fluff.`;
 }
 
-function getMockResult(): SuperpowersResult {
-  return {
-    pulse: "Your empire has strong strategic positioning with high-scoring opportunities and a live premium offer. The critical bottleneck is execution velocity: one clear conversion action needs to move from plan to shipped.",
-    topMoves: [
-      { title: "Finalize and launch the Executive Diagnostic offer", reasoning: "A packaged offer can convert faster than a new idea. This is the shortest path from positioning to revenue.", impact: "HIGH" },
-      { title: "Publish two offer-linked authority posts", reasoning: "Content should route attention into a real next action rather than remain visibility-only.", impact: "HIGH" },
-      { title: "Productize the strongest toolkit into a landing page", reasoning: "Reusable IP becomes useful only when it has a buyer path and a clear promise.", impact: "MEDIUM" }
-    ],
-    risks: [
-      { title: "Pipeline-to-conversion gap", description: "Strong opportunities can stall if they are not routed into offers, tasks, or approvals.", severity: "HIGH" },
-      { title: "Publishing without CTA", description: "Authority signals lose commercial value when not connected to a clear buyer action.", severity: "MEDIUM" },
-      { title: "Single task bottleneck", description: "One unfinished action can keep the whole revenue flow waiting.", severity: "LOW" }
-    ],
-    powerActions: [
-      "Write the offer page copy for the Executive Diagnostic",
-      "Set a price and CTA URL for the diagnostic",
-      "Publish one LinkedIn post linked to the live offer",
-      "Build a simple landing page for the top toolkit",
-      "Review agent outputs and route them into tasks or approvals"
-    ]
-  };
-}
-
 async function callGroq(prompt: string): Promise<SuperpowersResult> {
   const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
@@ -106,12 +83,18 @@ export async function POST() {
     const db = await getDb();
 
     if (!process.env.GROQ_API_KEY) {
-      return NextResponse.json(getMockResult());
+      return NextResponse.json(
+        { error: "GROQ_API_KEY is not configured; real execution is unavailable." },
+        { status: 503 }
+      );
     }
 
     const result = await callGroq(buildPrompt(db));
     return NextResponse.json(result);
-  } catch {
-    return NextResponse.json(getMockResult());
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Superpowers execution failed." },
+      { status: 502 }
+    );
   }
 }
