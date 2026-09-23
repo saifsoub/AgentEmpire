@@ -4,7 +4,8 @@ import { addOffer } from "@/lib/store";
 import fs from "node:fs/promises";
 import path from "node:path";
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY ?? "mock" });
+const anthropicApiKey = process.env.ANTHROPIC_API_KEY;
+const client = anthropicApiKey ? new Anthropic({ apiKey: anthropicApiKey }) : null;
 
 export interface CarInput {
   make: string;
@@ -204,36 +205,14 @@ async function executeTool(name: string, input: Record<string, unknown>): Promis
   throw new Error(`Unknown tool: ${name}`);
 }
 
-function getMockResult(car: CarInput): CarAgentResult {
-  const base = 95000;
-  return {
-    steps: [
-      { type: "message", content: `Analyzing ${car.year} ${car.make} ${car.model} for UAE market pricing...` },
-      { type: "tool_call", name: "score_vehicle", content: JSON.stringify({ spec: car.spec, serviceHistory: car.serviceHistory }) },
-      { type: "tool_result", name: "score_vehicle", content: JSON.stringify({ totalScore: 82 }) },
-      { type: "tool_call", name: "build_comparables", content: JSON.stringify({ make: car.make, model: car.model }) },
-      { type: "tool_result", name: "build_comparables", content: "6 comparables built (3A, 2B, 1C)" },
-      { type: "tool_call", name: "calculate_price_range", content: JSON.stringify({ vehicleScore: 82 }) },
-      { type: "tool_result", name: "calculate_price_range", content: JSON.stringify({ recommended: base, confidence: "High" }) },
-      { type: "tool_call", name: "create_listing", content: "Creating listing..." },
-      { type: "tool_result", name: "create_listing", content: "Listing created" },
-    ],
-    priceMin: base - 5000,
-    priceMax: base + 5000,
-    recommended: base,
-    confidence: "Medium",
-    summary: `The ${car.year} ${car.make} ${car.model} is well-positioned in the UAE market. ${car.spec === "GCC" ? "GCC spec is a strong buyer signal." : "Non-GCC spec may limit buyer pool."} ${car.serviceHistory === "Full Agency" ? "Full agency history supports premium pricing." : ""}`,
-    highlights: [`${car.spec} specification`, `${car.mileage.toLocaleString()} km`, `${car.condition} condition`, `${car.serviceHistory} service history`],
-    marketNotes: ["GCC buyers typically pay 8-12% premium for agency history", "Summer slowdown may extend days-on-market for non-SUVs", "Re-check comparables every 72 hours during active negotiation"],
-    listingId: "mock_listing",
-  };
-}
-
 export async function POST(req: Request) {
   const car = (await req.json()) as CarInput;
 
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return NextResponse.json(getMockResult(car));
+  if (!client) {
+    return NextResponse.json(
+      { error: "ANTHROPIC_API_KEY is not configured; real agent execution is unavailable." },
+      { status: 503 }
+    );
   }
 
   const marketGuide = await fs.readFile(
