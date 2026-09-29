@@ -41,46 +41,23 @@ function splitName(name: string) {
   return { first_name: firstName, last_name: remaining.join(" ") || null };
 }
 
-/** Stores only the explicit S/Agency offer/asset capture; it never creates pipeline records. */
+/** One database transaction owns idempotency and both inserts. */
 export async function storeWaitlistSubmission(input: WaitlistSubmission) {
-  const existing = await request(
-    `lead_sources?source=eq.agent_empire_capture&source_record_id=eq.${encodeURIComponent(input.submissionId)}&select=id`,
-    { method: "GET" },
-  );
-  if (!existing.ok) throw new Error("Unable to verify submission");
-  const matches = (await existing.json()) as Array<{ id: string }>;
-  if (matches.length) return { receiptId: input.submissionId, duplicate: true };
-
-  const leadResponse = await request("leads", {
+  const response = await request("rpc/capture_agency_interest", {
     method: "POST",
-    headers: { Prefer: "return=representation" },
-    body: JSON.stringify({ ...splitName(input.name), email: input.email.trim() }),
-  });
-  if (!leadResponse.ok) throw new Error("Unable to store lead");
-  const [lead] = (await leadResponse.json()) as Array<{ id: string }>;
-
-  const sourceResponse = await request("lead_sources", {
-    method: "POST",
-    headers: { Prefer: "return=minimal" },
     body: JSON.stringify({
-      lead_id: lead.id,
-      source: "agent_empire_capture",
-      source_record_id: input.submissionId,
-      purpose: input.sourceType === "offer" ? "agency_offer_interest" : "agency_asset_interest",
-      source_type: input.sourceType,
-      source_id: input.sourceId,
-      source_name: input.sourceName,
-      message: input.message || null,
-      contact_consent: input.consentAccepted,
-      consent_text: input.consentText,
-      consented_at: new Date().toISOString(),
+      p_submission_id: input.submissionId,
+      p_first_name: splitName(input.name).first_name,
+      p_last_name: splitName(input.name).last_name,
+      p_email: input.email.trim(),
+      p_source_type: input.sourceType,
+      p_source_id: input.sourceId,
+      p_source_name: input.sourceName,
+      p_message: input.message || null,
+      p_consent_text: input.consentText,
     }),
   });
-  if (!sourceResponse.ok) {
-    await request(`leads?id=eq.${lead.id}`, { method: "DELETE" });
-    if (sourceResponse.status === 409) return { receiptId: input.submissionId, duplicate: true };
-    throw new Error("Unable to store submission");
-  }
-
-  return { receiptId: input.submissionId, duplicate: false };
+  if (!response.ok) throw new Error("Unable to store submission");
+  const result = (await response.json()) as { receipt_id: string; duplicate: boolean };
+  return { receiptId: result.receipt_id, duplicate: result.duplicate };
 }
