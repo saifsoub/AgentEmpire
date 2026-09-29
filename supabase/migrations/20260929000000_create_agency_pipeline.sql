@@ -33,45 +33,15 @@ create table public.lead_sources (
   unique (source, source_record_id)
 );
 
--- Companies and opportunities are deliberately staff-created. There are no
--- triggers from lead_sources (or from university_interest) into these tables.
-create table public.companies (
-  id uuid primary key default gen_random_uuid(),
-  name text not null,
-  domain text,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
-
-create unique index companies_domain_normalized_key
-  on public.companies (lower(btrim(domain))) where domain is not null;
-
-create table public.opportunities (
-  id uuid primary key default gen_random_uuid(),
-  lead_id uuid references public.leads(id) on delete restrict,
-  company_id uuid references public.companies(id) on delete restrict,
-  name text not null,
-  stage text not null default 'qualification'
-    check (stage in ('qualification', 'discovery', 'proposal', 'won', 'lost')),
-  value_amount numeric(14,2) check (value_amount is null or value_amount >= 0),
-  currency text check (currency is null or currency ~ '^[A-Z]{3}$'),
-  owner_id uuid not null,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
-
 alter table public.leads enable row level security;
 alter table public.lead_sources enable row level security;
-alter table public.companies enable row level security;
-alter table public.opportunities enable row level security;
 
-revoke all on public.leads, public.lead_sources, public.companies, public.opportunities
+revoke all on public.leads, public.lead_sources
   from anon, authenticated;
 
 comment on table public.leads is 'Private S/Agency leads; separate from University admissions interest.';
 comment on table public.lead_sources is 'Purpose-scoped capture receipts and consent evidence.';
-comment on table public.companies is 'Staff-created companies; never inferred from intake submissions.';
-comment on table public.opportunities is 'Staff-owned qualified opportunities; never created by intake submissions.';
+-- Add company/opportunity tables only with an agreed staff qualification workflow.
 
 -- The server calls one RPC so a source receipt and its lead commit together.
 -- The lock serializes concurrent retries of the same submission ID. It never
