@@ -1,6 +1,28 @@
 {
   "opportunities": [
     {
+      "id": "opp_bpd28ch4",
+      "title": "Cloud Architecture Consulting",
+      "description": "",
+      "type": "Advisory",
+      "source": "manual",
+      "status": "IDEA",
+      "expectedRevenue": 45000,
+      "confidenceScore": 70,
+      "fitScore": 82,
+      "urgencyScore": 52,
+      "prestigeScore": 88,
+      "effortScore": 45,
+      "reusabilityScore": 78,
+      "speedToLaunchScore": 70,
+      "compoundingScore": 80,
+      "totalScore": 80,
+      "nextAction": "Validate and package",
+      "dueDate": "",
+      "createdAt": "2026-05-24T08:31:09.248Z",
+      "updatedAt": "2026-05-24T08:31:09.248Z"
+    },
+    {
       "id": "opp_01",
       "title": "Zero Bureaucracy Executive Diagnostic",
       "description": "Premium diagnostic offer for government entities seeking execution intelligence and service redesign.",
@@ -279,5 +301,596 @@
       "updatedAt": "2026-03-07T08:00:00.000Z"
     }
   ],
-  "leads": []
+  "leads": [],
+  "agents": [
+    {
+      "id": "agent_z6zk5h65",
+      "name": "Market Pulse Reporter",
+      "description": "Scans empire data and generates a quick market pulse report",
+      "icon": "Bot",
+      "category": "Strategy",
+      "systemPrompt": "You are a market analysis reporter. Review the empire data and produce a concise market pulse report covering top opportunities, revenue health, and strategic recommendations.",
+      "userMessageTemplate": "Generate a market pulse report.\nFocus area: {{focus}}\nTime horizon: {{horizon}}",
+      "tools": [
+        {
+          "name": "scan_empire_data",
+          "description": "Scan all empire data for the market pulse report",
+          "parameters": {},
+          "action": "search_empire"
+        }
+      ],
+      "inputFields": [
+        {
+          "key": "focus",
+          "label": "Focus Area",
+          "type": "text",
+          "placeholder": "e.g. Revenue, Brand, Growth",
+          "required": true
+        },
+        {
+          "key": "horizon",
+          "label": "Time Horizon",
+          "type": "select",
+          "placeholder": "",
+          "required": false,
+          "options": [
+            "ThisweekThismonthThisquarter"
+          ]
+        }
+      ],
+      "status": "active",
+      "builtIn": false,
+      "createdAt": "2026-05-24T08:54:27.230Z",
+      "updatedAt": "2026-05-24T08:54:27.230Z"
+    },
+    {
+      "id": "agent_content_strategist",
+      "name": "Content Strategist",
+      "description": "AI-powered content strategy agent that analyzes your empire and generates high-impact content ideas with hooks, angles, and publishing plans.",
+      "icon": "FileText",
+      "category": "Content",
+      "systemPrompt": "You are an expert content strategist for a personal brand empire. Your role is to analyze the user's business context and generate compelling content ideas that build authority and drive leads. Always use the search_empire tool first to understand the current state, then use create_content to produce a ready-to-publish content piece. Focus on LinkedIn-optimized content with sharp hooks and clear CTAs.",
+      "userMessageTemplate": "Create a content piece for my empire.\nPillar: {{pillar}}\nTopic focus: {{topic}}\nTarget platform: {{platform}}\nTone: {{tone}}\n\nSearch my empire data first to understand context, then create a compelling content piece.",
+      "tools": [
+        {
+          "name": "search_empire",
+          "description": "Search the empire data to understand current offers, content, and strategic context",
+          "parameters": {
+            "query": {
+              "type": "string",
+              "description": "Search query",
+              "required": false
+            },
+            "section": {
+              "type": "string",
+              "description": "Section to search: all, opportunities, offers, content, assets",
+              "required": false
+            }
+          },
+          "action": "search_empire"
+        },
+        {
+          "name": "create_content_piece",
+          "description": "Create and save a new content piece with pillar, topic, angle, hook, and body",
+          "parameters": {
+            "pillar": {
+              "type": "string",
+              "description": "Content pillar",
+              "required": true
+            },
+            "topic": {
+              "type": "string",
+              "description": "Content topic",
+              "required": true
+            },
+            "angle": {
+              "type": "string",
+              "description": "Unique angle or perspective",
+              "required": true
+            },
+            "hook": {
+              "type": "string",
+              "description": "Attention-grabbing opening hook",
+              "required": true
+            },
+            "body": {
+              "type": "string",
+              "description": "Full content body",
+              "required": true
+            },
+            "platform": {
+              "type": "string",
+              "description": "Target platform",
+              "required": true
+            }
+          },
+          "action": "create_content"
+        }
+      ],
+      "inputFields": [
+        {
+          "key": "pillar",
+          "label": "Content Pillar",
+          "type": "text",
+          "placeholder": "e.g. AI Strategy, Leadership, Zero Bureaucracy",
+          "required": true
+        },
+        {
+          "key": "topic",
+          "label": "Topic Focus",
+          "type": "text",
+          "placeholder": "e.g. Why most AI strategies fail",
+          "required": true
+        },
+        {
+          "key": "platform",
+          "label": "Platform",
+          "type": "select",
+          "options": [
+            "LinkedIn",
+            "Twitter/X",
+            "Newsletter",
+            "Blog"
+          ],
+          "required": true
+        },
+        {
+          "key": "tone",
+          "label": "Tone",
+          "type": "select",
+          "options": [
+            "Authoritative",
+            "Provocative",
+            "Educational",
+            "Story-driven"
+          ],
+          "required": false
+        }
+      ],
+      "status": "active",
+      "builtIn": true,
+      "createdAt": "2026-03-01T09:00:00.000Z",
+      "updatedAt": "2026-03-01T09:00:00.000Z"
+    },
+    {
+      "id": "agent_opportunity_scorer",
+      "name": "Opportunity Scorer",
+      "description": "Evaluates business opportunities using a multi-factor scoring model. Analyzes fit, revenue potential, urgency, and compounding value to help you prioritize what to pursue.",
+      "icon": "Target",
+      "category": "Revenue",
+      "systemPrompt": "You are a strategic business opportunity analyst. Evaluate the described opportunity against key criteria: market fit, revenue potential, strategic prestige, urgency, reusability, speed to launch, and compounding potential. Use the search_empire tool to check existing opportunities and avoid duplicates, then use create_opportunity to register it with your analysis.",
+      "userMessageTemplate": "Evaluate this business opportunity:\nTitle: {{title}}\nDescription: {{description}}\nType: {{type}}\nExpected Revenue: {{expectedRevenue}}\n\nSearch existing opportunities first, then score and register this one.",
+      "tools": [
+        {
+          "name": "search_existing_opportunities",
+          "description": "Search existing empire opportunities to check for overlap or synergies",
+          "parameters": {
+            "query": {
+              "type": "string",
+              "description": "Search query",
+              "required": false
+            },
+            "section": {
+              "type": "string",
+              "description": "Section to search",
+              "required": false
+            }
+          },
+          "action": "search_empire"
+        },
+        {
+          "name": "register_opportunity",
+          "description": "Create and register a scored opportunity in the pipeline",
+          "parameters": {
+            "title": {
+              "type": "string",
+              "description": "Opportunity title",
+              "required": true
+            },
+            "description": {
+              "type": "string",
+              "description": "Detailed description",
+              "required": true
+            },
+            "type": {
+              "type": "string",
+              "description": "Type: Advisory, Digital Product, System, Workshop",
+              "required": true
+            },
+            "source": {
+              "type": "string",
+              "description": "Source of the opportunity",
+              "required": true
+            },
+            "expectedRevenue": {
+              "type": "number",
+              "description": "Expected revenue in AED",
+              "required": true
+            },
+            "nextAction": {
+              "type": "string",
+              "description": "Recommended next action",
+              "required": true
+            },
+            "dueDate": {
+              "type": "string",
+              "description": "Target date (YYYY-MM-DD)",
+              "required": false
+            }
+          },
+          "action": "create_opportunity"
+        }
+      ],
+      "inputFields": [
+        {
+          "key": "title",
+          "label": "Opportunity Title",
+          "type": "text",
+          "placeholder": "e.g. Enterprise AI Consulting Package",
+          "required": true
+        },
+        {
+          "key": "description",
+          "label": "Description",
+          "type": "textarea",
+          "placeholder": "Describe the opportunity...",
+          "required": true
+        },
+        {
+          "key": "type",
+          "label": "Type",
+          "type": "select",
+          "options": [
+            "Advisory",
+            "Digital Product",
+            "System",
+            "Workshop",
+            "Retainer"
+          ],
+          "required": true
+        },
+        {
+          "key": "expectedRevenue",
+          "label": "Expected Revenue (AED)",
+          "type": "number",
+          "placeholder": "50000",
+          "required": true
+        }
+      ],
+      "status": "active",
+      "builtIn": true,
+      "createdAt": "2026-03-01T09:00:00.000Z",
+      "updatedAt": "2026-03-01T09:00:00.000Z"
+    },
+    {
+      "id": "agent_decision_advisor",
+      "name": "Decision Advisor",
+      "description": "Structured decision-making agent that evaluates options, weighs trade-offs, and provides clear recommendations backed by risk and impact analysis.",
+      "icon": "Scale",
+      "category": "Strategy",
+      "systemPrompt": "You are a strategic decision advisor for a personal empire. Help the user make high-quality decisions by analyzing options against criteria like impact, reversibility, speed, and strategic alignment. First search the empire to understand context, then create a structured decision analysis.",
+      "userMessageTemplate": "Help me decide:\nDecision: {{title}}\nContext: {{context}}\nOptions: {{options}}\n\nAnalyze my empire context first, then provide a structured decision analysis.",
+      "tools": [
+        {
+          "name": "review_empire_context",
+          "description": "Review current empire state for decision context",
+          "parameters": {
+            "query": {
+              "type": "string",
+              "description": "Search query for relevant context",
+              "required": false
+            },
+            "section": {
+              "type": "string",
+              "description": "Section to search",
+              "required": false
+            }
+          },
+          "action": "search_empire"
+        },
+        {
+          "name": "record_decision",
+          "description": "Record the decision analysis with recommendation",
+          "parameters": {
+            "title": {
+              "type": "string",
+              "description": "Decision title",
+              "required": true
+            },
+            "context": {
+              "type": "string",
+              "description": "Decision context and analysis",
+              "required": true
+            },
+            "options": {
+              "type": "string",
+              "description": "JSON array of option strings",
+              "required": true
+            }
+          },
+          "action": "analyze_decision"
+        }
+      ],
+      "inputFields": [
+        {
+          "key": "title",
+          "label": "Decision",
+          "type": "text",
+          "placeholder": "e.g. Should I launch a SaaS product or stick with consulting?",
+          "required": true
+        },
+        {
+          "key": "context",
+          "label": "Context",
+          "type": "textarea",
+          "placeholder": "What's the situation? What factors matter?",
+          "required": true
+        },
+        {
+          "key": "options",
+          "label": "Options (comma-separated)",
+          "type": "text",
+          "placeholder": "e.g. Launch SaaS, Double down on consulting, Hybrid approach",
+          "required": true
+        }
+      ],
+      "status": "active",
+      "builtIn": true,
+      "createdAt": "2026-03-01T09:00:00.000Z",
+      "updatedAt": "2026-03-01T09:00:00.000Z"
+    },
+    {
+      "id": "agent_lead_qualifier",
+      "name": "Lead Qualifier",
+      "description": "Qualifies inbound leads by analyzing their fit with your offers and assets. Scores leads and creates follow-up tasks automatically.",
+      "icon": "UserCheck",
+      "category": "Revenue",
+      "systemPrompt": "You are a lead qualification specialist. When a new lead comes in, analyze their inquiry against the empire's current offers and assets. Determine fit, urgency, and recommended follow-up. Create the lead record and a follow-up task.",
+      "userMessageTemplate": "Qualify this lead:\nName: {{name}}\nEmail: {{email}}\nMessage: {{message}}\nSource: {{source}}\n\nSearch my offers and assets to find the best match, then create the lead and a follow-up task.",
+      "tools": [
+        {
+          "name": "search_offers_and_assets",
+          "description": "Search empire offers and assets to match with the lead",
+          "parameters": {
+            "query": {
+              "type": "string",
+              "description": "Search query",
+              "required": false
+            },
+            "section": {
+              "type": "string",
+              "description": "Section to search",
+              "required": false
+            }
+          },
+          "action": "search_empire"
+        },
+        {
+          "name": "register_lead",
+          "description": "Create a lead record in the system",
+          "parameters": {
+            "name": {
+              "type": "string",
+              "description": "Lead name",
+              "required": true
+            },
+            "email": {
+              "type": "string",
+              "description": "Lead email",
+              "required": true
+            },
+            "message": {
+              "type": "string",
+              "description": "Lead message or inquiry",
+              "required": true
+            },
+            "sourceType": {
+              "type": "string",
+              "description": "Source type: offer or asset",
+              "required": true,
+              "enum": [
+                "offer",
+                "asset"
+              ]
+            },
+            "sourceId": {
+              "type": "string",
+              "description": "ID of the matching offer or asset",
+              "required": true
+            },
+            "sourceName": {
+              "type": "string",
+              "description": "Name of the matching offer or asset",
+              "required": true
+            }
+          },
+          "action": "create_lead"
+        },
+        {
+          "name": "create_followup_task",
+          "description": "Create a follow-up task for the lead",
+          "parameters": {
+            "title": {
+              "type": "string",
+              "description": "Task title",
+              "required": true
+            },
+            "category": {
+              "type": "string",
+              "description": "Task category",
+              "required": true
+            },
+            "priority": {
+              "type": "string",
+              "description": "Priority level",
+              "required": true,
+              "enum": [
+                "LOW",
+                "MEDIUM",
+                "HIGH",
+                "CRITICAL"
+              ]
+            },
+            "linkedEntityType": {
+              "type": "string",
+              "description": "Linked entity type",
+              "required": false
+            },
+            "linkedEntityId": {
+              "type": "string",
+              "description": "Linked entity ID",
+              "required": false
+            },
+            "dueAt": {
+              "type": "string",
+              "description": "Due date",
+              "required": false
+            }
+          },
+          "action": "create_task"
+        }
+      ],
+      "inputFields": [
+        {
+          "key": "name",
+          "label": "Lead Name",
+          "type": "text",
+          "placeholder": "e.g. Ahmed Al Mansouri",
+          "required": true
+        },
+        {
+          "key": "email",
+          "label": "Email",
+          "type": "text",
+          "placeholder": "e.g. ahmed@company.ae",
+          "required": true
+        },
+        {
+          "key": "message",
+          "label": "Inquiry Message",
+          "type": "textarea",
+          "placeholder": "What did they say or ask about?",
+          "required": true
+        },
+        {
+          "key": "source",
+          "label": "Source",
+          "type": "select",
+          "options": [
+            "Website",
+            "LinkedIn",
+            "Referral",
+            "Event",
+            "Cold outreach"
+          ],
+          "required": true
+        }
+      ],
+      "status": "active",
+      "builtIn": true,
+      "createdAt": "2026-03-01T09:00:00.000Z",
+      "updatedAt": "2026-03-01T09:00:00.000Z"
+    },
+    {
+      "id": "agent_asset_builder",
+      "name": "Asset Builder",
+      "description": "Turns your expertise into monetizable digital assets. Generates asset concepts, pricing, and sales copy — then creates them in your asset factory.",
+      "icon": "Package",
+      "category": "Assets",
+      "systemPrompt": "You are a digital asset strategist who helps solopreneurs monetize their expertise. Analyze the user's empire data to understand their domain authority, then create a well-packaged digital asset with compelling sales copy and appropriate pricing.",
+      "userMessageTemplate": "Create a digital asset:\nTitle: {{title}}\nType: {{assetType}}\nTarget audience: {{audience}}\nPrice point: {{price}}\n\nSearch my empire for context and existing assets, then create a monetizable asset.",
+      "tools": [
+        {
+          "name": "analyze_empire_assets",
+          "description": "Search empire data to understand existing assets and market positioning",
+          "parameters": {
+            "query": {
+              "type": "string",
+              "description": "Search query",
+              "required": false
+            },
+            "section": {
+              "type": "string",
+              "description": "Section to search",
+              "required": false
+            }
+          },
+          "action": "search_empire"
+        },
+        {
+          "name": "create_digital_asset",
+          "description": "Create a new digital asset in the asset factory",
+          "parameters": {
+            "title": {
+              "type": "string",
+              "description": "Asset title",
+              "required": true
+            },
+            "type": {
+              "type": "string",
+              "description": "Asset type: Toolkit, Template, Course, Report, Framework",
+              "required": true
+            },
+            "summary": {
+              "type": "string",
+              "description": "Asset summary and value proposition",
+              "required": true
+            },
+            "price": {
+              "type": "number",
+              "description": "Price in AED",
+              "required": true
+            },
+            "format": {
+              "type": "string",
+              "description": "Delivery format",
+              "required": true
+            }
+          },
+          "action": "create_asset"
+        }
+      ],
+      "inputFields": [
+        {
+          "key": "title",
+          "label": "Asset Title",
+          "type": "text",
+          "placeholder": "e.g. AI Implementation Playbook",
+          "required": true
+        },
+        {
+          "key": "assetType",
+          "label": "Asset Type",
+          "type": "select",
+          "options": [
+            "Toolkit",
+            "Template",
+            "Course",
+            "Report",
+            "Framework",
+            "Checklist"
+          ],
+          "required": true
+        },
+        {
+          "key": "audience",
+          "label": "Target Audience",
+          "type": "text",
+          "placeholder": "e.g. CTOs at mid-size companies",
+          "required": true
+        },
+        {
+          "key": "price",
+          "label": "Price (AED)",
+          "type": "number",
+          "placeholder": "499",
+          "required": true
+        }
+      ],
+      "status": "active",
+      "builtIn": true,
+      "createdAt": "2026-03-01T09:00:00.000Z",
+      "updatedAt": "2026-03-01T09:00:00.000Z"
+    }
+  ]
 }
