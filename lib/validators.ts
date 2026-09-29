@@ -4,7 +4,19 @@ export const createOfferSchema = z.object({ name: z.string().min(3), audience: z
 export const createContentSchema = z.object({ pillar: z.string().default("Authority"), topic: z.string().min(3), angle: z.string().default(""), hook: z.string().default(""), body: z.string().default(""), platform: z.string().default("LinkedIn") });
 export const createAssetSchema = z.object({ title: z.string().min(3), type: z.string().default("Toolkit"), summary: z.string().default(""), price: z.coerce.number().min(0).default(0), format: z.string().default("PDF"), buyUrl: z.string().default("") });
 export const analyzeDecisionSchema = z.object({ title: z.string().min(3), context: z.string().min(10), options: z.array(z.string()).min(2) });
-export const createLeadSchema = z.object({ name: z.string().min(1), email: z.string().email(), message: z.string().default(""), sourceType: z.enum(["offer", "asset"]), sourceId: z.string(), sourceName: z.string() });
+export const AGENCY_CONTACT_CONSENT = "I agree that S/Agency may contact me about this request.";
+export const createLeadSchema = z.object({
+  submissionId: z.string().uuid(),
+  name: z.string().trim().min(1).max(120),
+  email: z.string().trim().email().max(254),
+  message: z.string().trim().max(2000).default(""),
+  sourceType: z.enum(["offer", "asset"]),
+  sourceId: z.string().trim().min(1).max(120),
+  sourceName: z.string().trim().min(1).max(200),
+  consentAccepted: z.literal(true),
+  consentText: z.literal(AGENCY_CONTACT_CONSENT),
+  website: z.string().max(0).optional(),
+});
 export const createTaskSchema = z.object({ title: z.string().min(3), category: z.string().default("General"), priority: z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]).default("MEDIUM"), linkedEntityType: z.string().default(""), linkedEntityId: z.string().default(""), dueAt: z.string().default("") });
 export const enrollAgentSchema = z.object({ agentId: z.string().min(1), programId: z.string().min(1) });
 export const createWalletSchema = z.object({ agentId: z.string().min(1), currency: z.string().optional(), dailyLimit: z.coerce.number().min(0).optional() });
