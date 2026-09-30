@@ -1,4 +1,4 @@
-// S/ University — the first official "Harvard-level" agents university.
+// University — the first official "Harvard-level" agents university.
 // Owners enroll their agents to elevate capabilities; a resident team of
 // experts educates the agent and an examination board tests it to make sure
 // the new skills are applied successfully before certification is granted.
@@ -22,7 +22,7 @@ export type FacultyExpert = {
 };
 
 export const universityFaculty: FacultyExpert[] = [
-  { id: 'dean-amara', name: 'Dean Amara', title: 'Dean of S/ University', speciality: 'Curriculum governance and certification standards' },
+  { id: 'dean-amara', name: 'Dean Amara', title: 'Dean of University', speciality: 'Curriculum governance and certification standards' },
   { id: 'prof-vance', name: 'Prof. Vance', title: 'Chair of Design Engineering', speciality: 'Agent design capability — layout, brand systems, visual judgement' },
   { id: 'prof-imani', name: 'Prof. Imani', title: 'Chair of Operations', speciality: 'Workflow decomposition, tool routing, execution reliability' },
   { id: 'prof-okafor', name: 'Prof. Okafor', title: 'Head of the Examination Board', speciality: 'Adversarial testing, evaluation rubrics, applied-skill verification' },
@@ -54,10 +54,10 @@ export const universityPrograms: UniversityProgram[] = [
     id: 'commerce-conduct',
     name: 'Commerce & Financial Conduct',
     school: 'School of Commerce',
-    focus: 'Safe wallet usage, spend discipline, and the approval etiquette of S/ Banking.',
+    focus: 'Safe wallet usage, spend discipline, and the approval etiquette of Banking.',
     outcome: 'Agent requests spends correctly, respects limits, and never moves money without human approval.',
     facultyLead: 'Dean Amara',
-    sessions: ['S/ Banking protocol induction', 'Spend-request simulations', 'Limit and policy drills', 'Approval-flow etiquette', 'Conduct board review'],
+    sessions: ['Banking protocol induction', 'Spend-request simulations', 'Limit and policy drills', 'Approval-flow etiquette', 'Conduct board review'],
     passMark: 90,
   },
 ];
