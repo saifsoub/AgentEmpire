@@ -70,7 +70,7 @@ function Skyline() {
       <circle cx="930" cy="226" r="44" fill="#ffb46b" opacity="0.9" />
       <circle cx="930" cy="226" r="70" fill="#ffb46b" opacity="0.18" />
 
-      {/* Mountains with the S/ Sign */}
+      {/* Mountains with the Sign */}
       <path d="M0 248 L120 142 L230 248 Z" fill="#141d31" />
       <path d="M150 248 L300 116 L470 248 Z" fill="#19233a" />
       <path d="M380 248 L500 168 L620 248 Z" fill="#141d31" />
