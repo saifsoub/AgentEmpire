@@ -15,7 +15,7 @@ export default async function OfferLandingPage({ params }: { params: Promise<{ i
       {/* Top bar */}
       <div className="border-b border-border bg-[#0d1420] px-6 py-4">
         <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <div className="inline-flex rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-semibold text-accent">S/ Empire OS</div>
+          <div className="inline-flex rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-semibold text-accent">Empire OS</div>
           {offer.ctaUrl && (
             <a href={offer.ctaUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-secondary hover:text-primary">
               Learn more <ExternalLink className="h-3.5 w-3.5" />
