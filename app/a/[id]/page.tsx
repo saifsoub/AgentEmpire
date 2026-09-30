@@ -17,7 +17,7 @@ export default async function AssetBuyPage({ params }: { params: Promise<{ id: s
       {/* Top bar */}
       <div className="border-b border-border bg-[#0d1420] px-6 py-4">
         <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <div className="inline-flex rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-semibold text-accent">S/ Empire OS</div>
+          <div className="inline-flex rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-semibold text-accent">Empire OS</div>
           <div className="text-sm text-muted">{asset.type} · {asset.format}</div>
         </div>
       </div>
