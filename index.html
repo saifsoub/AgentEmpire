@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Personal Empire OS</title>
+  <meta name="description" content="AI-powered personal empire system — monetize, publish, decide, and compound." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Design tokens ── */
+    :root {
+      --bg-app:       #0A0F1A;
+      --bg-surface:   #121826;
+      --bg-surface-2: #182133;
+      --border:       #27324A;
+      --text-primary: #F3F6FB;
+      --text-secondary:#B8C2D6;
+      --text-muted:   #7E8AA3;
+      --accent:       #EB5815;
+      --accent-dim:   rgba(235,88,21,.15);
+      --accent-border:rgba(235,88,21,.35);
+      --green:        #22C55E;
+      --yellow:       #EAB308;
+      --blue:         #3B82F6;
+      --radius-card:  1.25rem;
+      --shadow-soft:  0 4px 24px rgba(0,0,0,.35);
+    }
+
+    /* ── Reset & base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; border-color: var(--border); }
+    html, body { min-height: 100%; background: var(--bg-app); color: var(--text-primary); }
+    body {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
+
+    /* ── Layout ── */
+    .layout { display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 17rem;
+      flex-shrink: 0;
+      border-right: 1px solid var(--border);
+      background: #0d1420;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    .sidebar-brand { margin-bottom: 2rem; }
+    .sidebar-badge {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--accent-border);
+      background: var(--accent-dim);
+      color: var(--accent);
+      border-radius: 9999px;
+      padding: .2rem .75rem;
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .04em;
+      margin-bottom: .5rem;
+    }
+    .sidebar-title { font-size: 1.35rem; font-weight: 600; color: var(--text-primary); }
+    .sidebar-sub   { margin-top: .4rem; font-size: .8rem; color: var(--text-secondary); }
+    .nav { display: flex; flex-direction: column; gap: .25rem; }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      border-radius: 1rem;
+      padding: .7rem 1rem;
+      font-size: .85rem;
+      color: var(--text-secondary);
+      transition: background .15s, color .15s;
+      cursor: pointer;
+    }
+    .nav-item:hover  { background: rgba(18,24,38,.6); color: var(--text-primary); }
+    .nav-item.active { background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--border); }
+    .nav-icon { width: 1rem; height: 1rem; flex-shrink: 0; opacity: .85; }
+
+    /* ── Main ── */
+    .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+    /* ── Header ── */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10,15,26,.9);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 1rem 1.5rem;
+    }
+    .header-inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; max-width: 72rem; margin: 0 auto; }
+    .header-title { font-size: 1.5rem; font-weight: 600; color: var(--text-primary); }
+    .header-sub   { font-size: .82rem; color: var(--text-secondary); margin-top: .2rem; }
+    .header-actions { display: flex; align-items: center; gap: .5rem; }
+    .btn-outline {
+      border: 1px solid var(--border);
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+      border-radius: .75rem;
+      padding: .45rem 1rem;
+      font-size: .82rem;
+      cursor: pointer;
+      transition: color .15s;
+    }
+    .btn-outline:hover { color: var(--text-primary); }
+    .btn-accent {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: .75rem;
+      padding: .45rem 1rem;
+      font-size: .82rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+    .btn-accent:hover { opacity: .88; }
+
+    /* ── Page content ── */
+    .content { flex: 1; padding: 1.5rem; max-width: 72rem; margin: 0 auto; width: 100%; }
+    .section-gap { display: flex; flex-direction: column; gap: 1.5rem; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-soft);
+    }
+    .card-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .card-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+    .card-sub   { font-size: .78rem; color: var(--text-muted); margin-top: .15rem; }
+    .card-body  { padding: 1.25rem 1.5rem; }
+
+    /* ── Stat grid ── */
+    .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+    @media (max-width: 900px)  { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 500px)  { .stat-grid { grid-template-columns: 1fr; } }
+
+    .stat-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: .35rem;
+    }
+    .stat-label { font-size: .78rem; color: var(--text-muted); font-weight: 500; letter-spacing: .03em; text-transform: uppercase; }
+    .stat-value { font-size: 2rem; font-weight: 700; color: var(--text-primary); line-height: 1; }
+    .stat-delta { font-size: .78rem; color: var(--green); display: flex; align-items: center; gap: .3rem; }
+    .stat-delta.warn { color: var(--yellow); }
+
+    /* ── Two-column grid ── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 780px) { .two-col { grid-template-columns: 1fr; } }
+
+    .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    @media (max-width: 900px) { .three-col { grid-template-columns: 1fr; } }
+
+    /* ── Table ── */
+    table { width: 100%; border-collapse: collapse; font-size: .83rem; }
+    th { text-align: left; padding: .6rem .75rem; color: var(--text-muted); font-weight: 500; font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; border-bottom: 1px solid var(--border); }
+    td { padding: .75rem .75rem; border-bottom: 1px solid rgba(39,50,74,.4); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: rgba(18,24,38,.5); }
+
+    /* ── Badges / Pills ── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: .18rem .65rem;
+      border-radius: 9999px;
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .03em;
+    }
+    .badge-green  { background: rgba(34,197,94,.12);  color: #4ade80; }
+    .badge-yellow { background: rgba(234,179,8,.12);  color: #fbbf24; }
+    .badge-blue   { background: rgba(59,130,246,.12); color: #60a5fa; }
+    .badge-orange { background: var(--accent-dim);    color: var(--accent); }
+    .badge-muted  { background: rgba(126,138,163,.1); color: var(--text-muted); }
+    .badge-purple { background: rgba(139,92,246,.12); color: #a78bfa; }
+
+    /* ── Score bar ── */
+    .score-bar-wrap { display: flex; align-items: center; gap: .6rem; }
+    .score-bar-track { flex: 1; height: .35rem; background: var(--border); border-radius: 9999px; overflow: hidden; }
+    .score-bar-fill  { height: 100%; border-radius: 9999px; background: var(--accent); }
+    .score-num { font-size: .8rem; color: var(--text-secondary); min-width: 2rem; text-align: right; }
+
+    /* ── Mini list ── */
+    .mini-list { display: flex; flex-direction: column; gap: .6rem; }
+    .mini-item {
+      display: flex;
+      align-items: flex-start;
+      gap: .65rem;
+      padding: .75rem;
+      border-radius: .9rem;
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border);
+    }
+    .mini-dot { width: .45rem; height: .45rem; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: .3rem; }
+    .mini-text { font-size: .82rem; color: var(--text-secondary); line-height: 1.45; }
+
+    /* ── Priority dots ── */
+    .pri { display: inline-block; width: .5rem; height: .5rem; border-radius: 50%; margin-right: .4rem; }
+    .pri-critical { background: #ef4444; }
+    .pri-high     { background: var(--accent); }
+    .pri-medium   { background: var(--yellow); }
+    .pri-low      { background: var(--text-muted); }
+
+    /* ── Weekly briefing section ── */
+    .brief-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 680px) { .brief-grid { grid-template-columns: 1fr; } }
+
+    /* ── Bar chart (simple SVG-free version) ── */
+    .chart-bars { display: flex; align-items: flex-end; gap: .5rem; height: 7rem; }
+    .chart-bar-col { display: flex; flex-direction: column; align-items: center; gap: .3rem; flex: 1; }
+    .chart-bar { width: 100%; background: var(--accent); border-radius: .35rem .35rem 0 0; opacity: .8; transition: opacity .2s; }
+    .chart-bar:hover { opacity: 1; }
+    .chart-bar.dim { background: var(--bg-surface-2); border: 1px solid var(--border); }
+    .chart-label { font-size: .65rem; color: var(--text-muted); }
+
+    /* ── Divider ── */
+    hr { border: none; border-top: 1px solid var(--border); margin: .25rem 0; }
+
+    /* ── Utility ── */
+    .text-accent   { color: var(--accent); }
+    .text-muted    { color: var(--text-muted); }
+    .text-secondary{ color: var(--text-secondary); }
+    .text-primary  { color: var(--text-primary); }
+    .text-green    { color: var(--green); }
+    .text-yellow   { color: var(--yellow); }
+    .font-medium   { font-weight: 500; }
+    .font-semibold { font-weight: 600; }
+    .text-sm       { font-size: .83rem; }
+    .text-xs       { font-size: .72rem; }
+    .mt-1 { margin-top: .25rem; }
+    .mt-2 { margin-top: .5rem; }
+    .mt-3 { margin-top: .75rem; }
+    .flex { display: flex; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .gap-1 { gap: .25rem; }
+    .gap-2 { gap: .5rem; }
+    .gap-3 { gap: .75rem; }
+
+    /* ── Mobile sidebar toggle ── */
+    @media (max-width: 1024px) {
+      .sidebar { display: none; }
+      .sidebar.open { display: flex; position: fixed; z-index: 100; left: 0; top: 0; height: 100%; box-shadow: 0 0 40px rgba(0,0,0,.6); }
+      .menu-btn { display: flex; }
+    }
+    .menu-btn {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 2.2rem; height: 2.2rem;
+      border: 1px solid var(--border);
+      background: var(--bg-surface);
+      border-radius: .65rem;
+      cursor: pointer;
+      color: var(--text-secondary);
+    }
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 90; }
+    .overlay.open { display: block; }
+  </style>
+</head>
+<body>
+
+<!-- Mobile overlay -->
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="layout">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-badge">S/ Empire OS</div>
+      <div class="sidebar-title">Personal Empire</div>
+      <p class="sidebar-sub">Monetize, publish, decide, and compound.</p>
+    </div>
+    <nav class="nav">
+      <a class="nav-item active" href="#dashboard">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Dashboard
+      </a>
+      <a class="nav-item" href="#opportunities">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75"/></svg>
+        Opportunities
+      </a>
+      <a class="nav-item" href="#offers">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+        Offers
+      </a>
+      <a class="nav-item" href="#content">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"/></svg>
+        Content
+      </a>
+      <a class="nav-item" href="#assets">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 6.878V6a2.25 2.25 0 012.25-2.25h7.5A2.25 2.25 0 0118 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 004.5 9v.878m13.5-3A2.25 2.25 0 0119.5 9v.878m0 0a2.246 2.246 0 00-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0121 12v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6c0-.98.626-1.813 1.5-2.122"/></svg>
+        Assets
+      </a>
+      <a class="nav-item" href="#decisions">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
+        Decisions
+      </a>
+      <a class="nav-item" href="#briefings">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
+        Briefings
+      </a>
+      <a class="nav-item" href="#lifestyle">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941"/></svg>
+        Lifestyle
+      </a>
+      <a class="nav-item" href="#settings">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 011.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.56.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.893.149c-.425.07-.765.383-.93.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 01-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.397.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 01-.12-1.45l.527-.737c.25-.35.273-.806.108-1.204-.165-.397-.505-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.107-1.204l-.527-.738a1.125 1.125 0 01.12-1.45l.773-.773a1.125 1.125 0 011.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        Settings
+      </a>
+    </nav>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="main">
+
+    <!-- ── Header ── -->
+    <header class="header">
+      <div class="header-inner">
+        <div>
+          <div class="header-title">Dashboard</div>
+          <div class="header-sub">Your empire at a glance — week of Mar 7, 2026</div>
+        </div>
+        <div class="header-actions">
+          <button class="menu-btn" id="menuBtn" onclick="toggleSidebar()" aria-label="Open menu">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <a href="#" class="btn-outline">Overview</a>
+          <button class="btn-accent">+ Quick Create</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── Page content ── -->
+    <div class="content">
+      <div class="section-gap">
+
+        <!-- ── Stat row ── -->
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-label">Opportunities</div>
+            <div class="stat-value">3</div>
+            <div class="stat-delta">↑ 1 this week</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Pipeline Value</div>
+            <div class="stat-value">AED 108K</div>
+            <div class="stat-delta">↑ +AED 25K</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Live Offers</div>
+            <div class="stat-value">2</div>
+            <div class="stat-delta warn">1 ready to launch</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Content Published</div>
+            <div class="stat-value">1</div>
+            <div class="stat-delta">6,400 views</div>
+          </div>
+        </div>
+
+        <!-- ── Weekly briefing + tasks ── -->
+        <div class="two-col">
+
+          <!-- Weekly briefing -->
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Weekly Briefing</div>
+                <div class="card-sub">Week of Mar 7, 2026</div>
+              </div>
+              <span class="badge badge-green">READY</span>
+            </div>
+            <div class="card-body">
+              <p class="text-sm text-secondary" style="line-height:1.55;">
+                Turn strategy expertise into one monetizable asset and one stronger commercial offer.
+              </p>
+              <div class="mt-3">
+                <div class="text-xs text-muted font-medium" style="text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem;">Top Moves</div>
+                <div class="mini-list">
+                  <div class="mini-item">
+                    <span class="mini-dot"></span>
+                    <span class="mini-text">Finalize the executive diagnostic offer and CTA</span>
+                  </div>
+                  <div class="mini-item">
+                    <span class="mini-dot"></span>
+                    <span class="mini-text">Publish two authority posts linked to a real offer</span>
+                  </div>
+                  <div class="mini-item">
+                    <span class="mini-dot"></span>
+                    <span class="mini-text">Package one framework into a downloadable paid asset</span>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-3 brief-grid">
+                <div>
+                  <div class="text-xs text-muted font-medium" style="text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem;">Focus Areas</div>
+                  <div style="display:flex;flex-wrap:wrap;gap:.35rem;">
+                    <span class="badge badge-orange">Revenue</span>
+                    <span class="badge badge-blue">Brand</span>
+                    <span class="badge badge-purple">Assets</span>
+                  </div>
+                </div>
+                <div>
+                  <div class="text-xs text-muted font-medium" style="text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem;">Risks</div>
+                  <ul style="display:flex;flex-direction:column;gap:.25rem;">
+                    <li class="text-xs text-secondary">· Overcomplicating packaging</li>
+                    <li class="text-xs text-secondary">· Posting without CTA</li>
+                    <li class="text-xs text-secondary">· Too many parallel ideas</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="mt-3" style="background:var(--bg-surface-2);border:1px solid var(--border);border-radius:.75rem;padding:.65rem .85rem;">
+                <span class="text-xs text-muted">Review note: </span>
+                <span class="text-xs text-secondary">This week is about conversion, not exploration.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tasks -->
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Tasks</div>
+                <div class="card-sub">3 active • 1 critical</div>
+              </div>
+              <button class="btn-outline">+ Add task</button>
+            </div>
+            <div class="card-body" style="padding:0;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Task</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Due</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <div class="font-medium text-sm text-primary">Finalize diagnostic pricing and CTA</div>
+                      <div class="text-xs text-muted">Revenue · offer</div>
+                    </td>
+                    <td><span class="pri pri-critical"></span><span class="text-xs text-secondary">Critical</span></td>
+                    <td><span class="badge badge-yellow">TODO</span></td>
+                    <td class="text-xs text-muted">Mar 10</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="font-medium text-sm text-primary">Convert KPI canvas into paid asset</div>
+                      <div class="text-xs text-muted">Assets · asset</div>
+                    </td>
+                    <td><span class="pri pri-high"></span><span class="text-xs text-secondary">High</span></td>
+                    <td><span class="badge badge-blue">IN PROGRESS</span></td>
+                    <td class="text-xs text-muted">Mar 11</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="font-medium text-sm text-primary">Publish authority post on AI execution</div>
+                      <div class="text-xs text-muted">Brand · content</div>
+                    </td>
+                    <td><span class="pri pri-high"></span><span class="text-xs text-secondary">High</span></td>
+                    <td><span class="badge badge-green">DONE</span></td>
+                    <td class="text-xs text-muted">Mar 8</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Opportunities ── -->
+        <div class="card" id="opportunities">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Opportunities</div>
+              <div class="card-sub">Scored, ranked, and actionable</div>
+            </div>
+            <button class="btn-outline">+ New opportunity</button>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Opportunity</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th>Expected Revenue</th>
+                  <th>Total Score</th>
+                  <th>Next Action</th>
+                  <th>Due</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="font-medium text-sm text-primary">Zero Bureaucracy Executive Diagnostic</div>
+                    <div class="text-xs text-muted">Premium diagnostic for government entities</div>
+                  </td>
+                  <td class="text-xs text-secondary">Advisory</td>
+                  <td><span class="badge badge-orange">PACKAGING</span></td>
+                  <td class="text-sm text-primary font-medium">AED 65,000</td>
+                  <td>
+                    <div class="score-bar-wrap">
+                      <div class="score-bar-track"><div class="score-bar-fill" style="width:89%"></div></div>
+                      <span class="score-num">89</span>
+                    </div>
+                  </td>
+                  <td class="text-xs text-secondary">Finalize offer page and pricing architecture</td>
+                  <td class="text-xs text-muted">Mar 14</td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="font-medium text-sm text-primary">Government AI Readiness Toolkit</div>
+                    <div class="text-xs text-muted">Digital toolkit for AI readiness assessments</div>
+                  </td>
+                  <td class="text-xs text-secondary">Digital Product</td>
+                  <td><span class="badge badge-yellow">VALIDATING</span></td>
+                  <td class="text-sm text-primary font-medium">AED 18,000</td>
+                  <td>
+                    <div class="score-bar-wrap">
+                      <div class="score-bar-track"><div class="score-bar-fill" style="width:84%"></div></div>
+                      <span class="score-num">84</span>
+                    </div>
+                  </td>
+                  <td class="text-xs text-secondary">Build landing page and sample asset</td>
+                  <td class="text-xs text-muted">Mar 18</td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="font-medium text-sm text-primary">Authority LinkedIn Engine</div>
+                    <div class="text-xs text-muted">Branded system for authority posts and lead magnets</div>
+                  </td>
+                  <td class="text-xs text-secondary">System</td>
+                  <td><span class="badge badge-green">SELLING</span></td>
+                  <td class="text-sm text-primary font-medium">AED 25,000</td>
+                  <td>
+                    <div class="score-bar-wrap">
+                      <div class="score-bar-track"><div class="score-bar-fill" style="width:83%"></div></div>
+                      <span class="score-num">83</span>
+                    </div>
+                  </td>
+                  <td class="text-xs text-secondary">Publish 3 posts tied to a lead magnet</td>
+                  <td class="text-xs text-muted">Mar 16</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ── Offers + Assets ── -->
+        <div class="two-col" id="offers">
+
+          <!-- Offers -->
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Offers</div>
+                <div class="card-sub">2 offers · 1 live</div>
+              </div>
+              <button class="btn-outline">+ New offer</button>
+            </div>
+            <div class="card-body">
+              <div class="mini-list">
+                <div style="padding:1rem;background:var(--bg-surface-2);border:1px solid var(--border);border-radius:1rem;">
+                  <div class="flex items-center justify-between gap-2">
+                    <div class="font-semibold text-sm text-primary">AI Strategy &amp; Execution Diagnostic</div>
+                    <span class="badge badge-green">LIVE</span>
+                  </div>
+                  <div class="text-xs text-muted mt-1">Government entities and executive teams</div>
+                  <div class="text-xs text-secondary mt-2" style="line-height:1.5;">A premium rapid diagnostic that reveals strategic gaps, execution blockers, KPI breakdowns, and monetizable intervention paths.</div>
+                  <div class="flex items-center justify-between mt-3">
+                    <span class="text-sm font-semibold text-accent">AED 25,000 – 65,000</span>
+                    <span class="text-xs text-muted">Fixed project</span>
+                  </div>
+                  <div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.6rem;">
+                    <span class="badge badge-muted">Executive briefing</span>
+                    <span class="badge badge-muted">Maturity score</span>
+                    <span class="badge badge-muted">Intervention roadmap</span>
+                  </div>
+                </div>
+                <div style="padding:1rem;background:var(--bg-surface-2);border:1px solid var(--border);border-radius:1rem;">
+                  <div class="flex items-center justify-between gap-2">
+                    <div class="font-semibold text-sm text-primary">Executive Performance Architecture Workshop</div>
+                    <span class="badge badge-yellow">READY</span>
+                  </div>
+                  <div class="text-xs text-muted mt-1">Leadership teams</div>
+                  <div class="text-xs text-secondary mt-2" style="line-height:1.5;">A high-end strategy workshop that rebuilds alignment, measures, and action architecture.</div>
+                  <div class="flex items-center justify-between mt-3">
+                    <span class="text-sm font-semibold text-accent">AED 18,000 – 35,000</span>
+                    <span class="text-xs text-muted">Workshop</span>
+                  </div>
+                  <div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.6rem;">
+                    <span class="badge badge-muted">Workshop facilitation</span>
+                    <span class="badge badge-muted">KPI map</span>
+                    <span class="badge badge-muted">Action memo</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Assets -->
+          <div class="card" id="assets">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Asset Factory</div>
+                <div class="card-sub">Turn insights into monetizable IP</div>
+              </div>
+              <button class="btn-outline">+ New asset</button>
+            </div>
+            <div class="card-body">
+              <div class="mini-list">
+                <div style="padding:1rem;background:var(--bg-surface-2);border:1px solid var(--border);border-radius:1rem;">
+                  <div class="flex items-center justify-between gap-2">
+                    <div class="font-semibold text-sm text-primary">Government AI Readiness Index Toolkit</div>
+                    <span class="badge badge-blue">PRODUCTIZED</span>
+                  </div>
+                  <div class="text-xs text-muted mt-1">Toolkit · PDF + prompts</div>
+                  <div class="text-xs text-secondary mt-2" style="line-height:1.5;">A premium assessment asset for evaluating institutional AI maturity, readiness, and execution barriers.</div>
+                  <div class="flex items-center justify-between mt-3">
+                    <span class="text-sm font-semibold text-accent">AED 499</span>
+                    <span class="badge badge-blue">PRODUCTIZED</span>
+                  </div>
+                </div>
+                <div style="padding:1rem;background:var(--bg-surface-2);border:1px solid var(--border);border-radius:1rem;">
+                  <div class="flex items-center justify-between gap-2">
+                    <div class="font-semibold text-sm text-primary">Executive KPI Architecture Canvas</div>
+                    <span class="badge badge-green">MONETIZED</span>
+                  </div>
+                  <div class="text-xs text-muted mt-1">Template · Slides + worksheet</div>
+                  <div class="text-xs text-secondary mt-2" style="line-height:1.5;">Framework to align strategy, KPIs, initiatives, and accountability in one executive visual.</div>
+                  <div class="flex items-center justify-between mt-3">
+                    <span class="text-sm font-semibold text-accent">AED 299</span>
+                    <span class="badge badge-green">MONETIZED</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Content Engine ── -->
+        <div class="card" id="content">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Content Engine</div>
+              <div class="card-sub">Authority posts, hooks, and lead machines</div>
+            </div>
+            <button class="btn-outline">+ New content</button>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Topic</th>
+                  <th>Pillar</th>
+                  <th>Platform</th>
+                  <th>Status</th>
+                  <th>Views</th>
+                  <th>Leads</th>
+                  <th>Published</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="font-medium text-sm text-primary">Why most AI strategies fail in execution</div>
+                    <div class="text-xs text-muted italic">"Most AI roadmaps are performance theatre."</div>
+                  </td>
+                  <td class="text-xs text-secondary">AI in Government</td>
+                  <td><span class="badge badge-blue">LinkedIn</span></td>
+                  <td><span class="badge badge-green">PUBLISHED</span></td>
+                  <td class="text-sm text-primary font-medium">6,400</td>
+                  <td class="text-sm text-green font-medium">8</td>
+                  <td class="text-xs text-muted">Mar 5</td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="font-medium text-sm text-primary">Why service excellence fails with bloated processes</div>
+                    <div class="text-xs text-muted italic">"You cannot design a premium experience on bureaucratic debris."</div>
+                  </td>
+                  <td class="text-xs text-secondary">Zero Bureaucracy</td>
+                  <td><span class="badge badge-blue">LinkedIn</span></td>
+                  <td><span class="badge badge-muted">DRAFT</span></td>
+                  <td class="text-sm text-muted">—</td>
+                  <td class="text-sm text-muted">—</td>
+                  <td class="text-xs text-muted">Pending</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ── Decisions + Lifestyle ── -->
+        <div class="two-col">
+
+          <!-- Decisions -->
+          <div class="card" id="decisions">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Decisions</div>
+                <div class="card-sub">Strategic clarity, captured</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div style="padding:1rem;background:var(--bg-surface-2);border:1px solid var(--border);border-radius:1rem;">
+                <div class="flex items-center justify-between gap-2" style="margin-bottom:.5rem;">
+                  <div class="font-semibold text-sm text-primary">What should be monetized first?</div>
+                  <span class="badge badge-green">READY</span>
+                </div>
+                <p class="text-xs text-secondary" style="line-height:1.5;margin-bottom:.65rem;">Several ideas exist, but not all deserve immediate focus.</p>
+                <div class="text-xs text-muted font-medium" style="text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem;">Options considered</div>
+                <div style="display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.65rem;">
+                  <span class="badge badge-orange">Executive diagnostic ✓</span>
+                  <span class="badge badge-muted">Digital toolkit</span>
+                  <span class="badge badge-muted">SaaS waitlist</span>
+                </div>
+                <div style="background:rgba(235,88,21,.08);border:1px solid var(--accent-border);border-radius:.65rem;padding:.6rem .75rem;">
+                  <div class="text-xs text-accent font-medium" style="margin-bottom:.2rem;">Recommended: Executive diagnostic</div>
+                  <p class="text-xs text-secondary" style="line-height:1.5;">Fastest path to cash, strongest prestige signal, builds proof for later productization.</p>
+                </div>
+                <div class="flex gap-3 mt-3">
+                  <div style="flex:1;text-align:center;">
+                    <div class="text-xs text-muted">Impact</div>
+                    <div class="text-sm font-semibold text-primary">91 / 100</div>
+                  </div>
+                  <div style="width:1px;background:var(--border);"></div>
+                  <div style="flex:1;text-align:center;">
+                    <div class="text-xs text-muted">Reversibility</div>
+                    <div class="text-sm font-semibold text-primary">80 / 100</div>
+                  </div>
+                  <div style="width:1px;background:var(--border);"></div>
+                  <div style="flex:1;text-align:center;">
+                    <div class="text-xs text-muted">Risk</div>
+                    <div class="text-sm font-semibold text-yellow">Medium</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lifestyle -->
+          <div class="card" id="lifestyle">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Lifestyle OS</div>
+                <div class="card-sub">ROI-driven life investments</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="mini-list">
+                <div style="padding:1rem;background:var(--bg-surface-2);border:1px solid var(--border);border-radius:1rem;">
+                  <div class="flex items-center justify-between gap-2">
+                    <div class="font-semibold text-sm text-primary">Time-buying assistant workflow</div>
+                    <span class="badge badge-green">ACTIVE</span>
+                  </div>
+                  <div class="text-xs text-muted mt-1">Time ROI</div>
+                  <div class="text-xs text-secondary mt-2" style="line-height:1.5;">Automate repetitive admin and preserve executive-level thinking hours.</div>
+                  <div class="mt-3">
+                    <div class="flex items-center justify-between" style="margin-bottom:.3rem;">
+                      <span class="text-xs text-muted">ROI Score</span>
+                      <span class="text-xs font-semibold text-green">88</span>
+                    </div>
+                    <div class="score-bar-track" style="height:.4rem;">
+                      <div class="score-bar-fill" style="width:88%;background:var(--green);"></div>
+                    </div>
+                  </div>
+                </div>
+                <div style="padding:1rem;background:var(--bg-surface-2);border:1px solid var(--border);border-radius:1rem;">
+                  <div class="flex items-center justify-between gap-2">
+                    <div class="font-semibold text-sm text-primary">Premium visual environment upgrade</div>
+                    <span class="badge badge-green">ACTIVE</span>
+                  </div>
+                  <div class="text-xs text-muted mt-1">Aesthetic ROI</div>
+                  <div class="text-xs text-secondary mt-2" style="line-height:1.5;">Sharper environment improves focus, identity, and consistency of premium output.</div>
+                  <div class="mt-3">
+                    <div class="flex items-center justify-between" style="margin-bottom:.3rem;">
+                      <span class="text-xs text-muted">ROI Score</span>
+                      <span class="text-xs font-semibold text-green">74</span>
+                    </div>
+                    <div class="score-bar-track" style="height:.4rem;">
+                      <div class="score-bar-fill" style="width:74%;background:var(--green);"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Score breakdown chart ── -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Opportunity Score Breakdown</div>
+              <div class="card-sub">8-dimension scoring for top opportunity</div>
+            </div>
+            <span class="badge badge-orange">Zero Bureaucracy Executive Diagnostic · Score 89</span>
+          </div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem 1.5rem;">
+              <div>
+                <div class="flex items-center justify-between" style="margin-bottom:.3rem;">
+                  <span class="text-xs text-muted">Confidence</span>
+                  <span class="text-xs font-semibold text-primary">86</span>
+                </div>
+                <div class="score-bar-track"><div class="score-bar-fill" style="width:86%"></div></div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between" style="margin-bottom:.3rem;">
+                  <span class="text-xs text-muted">Fit</span>
+                  <span class="text-xs font-semibold text-primary">95</span>
+                </div>
+                <div class="score-bar-track"><div class="score-bar-fill" style="width:95%"></div></div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between" style="margin-bottom:.3rem;">
+                  <span class="text-xs text-muted">Urgency</span>
+                  <span class="text-xs font-semibold text-primary">82</span>
+                </div>
+                <div class="score-bar-track"><div class="score-bar-fill" style="width:82%"></div></div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between" style="margin-bottom:.3rem;">
+                  <span class="text-xs text-muted">Prestige</span>
+                  <span class="text-xs font-semibold text-primary">92</span>
+                </div>
+                <div class="score-bar-track"><div class="score-bar-fill" style="width:92%"></div></div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between" style="margin-bottom:.3rem;">
+                  <span class="text-xs text-muted">Effort</span>
+                  <span class="text-xs font-semibold text-primary">52</span>
+                </div>
+                <div class="score-bar-track"><div class="score-bar-fill" style="width:52%"></div></div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between" style="margin-bottom:.3rem;">
+                  <span class="text-xs text-muted">Reusability</span>
+                  <span class="text-xs font-semibold text-primary">88</span>
+                </div>
+                <div class="score-bar-track"><div class="score-bar-fill" style="width:88%"></div></div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between" style="margin-bottom:.3rem;">
+                  <span class="text-xs text-muted">Speed to Launch</span>
+                  <span class="text-xs font-semibold text-primary">74</span>
+                </div>
+                <div class="score-bar-track"><div class="score-bar-fill" style="width:74%"></div></div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between" style="margin-bottom:.3rem;">
+                  <span class="text-xs text-muted">Compounding</span>
+                  <span class="text-xs font-semibold text-primary">91</span>
+                </div>
+                <div class="score-bar-track"><div class="score-bar-fill" style="width:91%"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Footer ── -->
+        <footer style="text-align:center;padding:1rem 0 1.5rem;color:var(--text-muted);font-size:.75rem;">
+          Personal Empire OS &nbsp;·&nbsp; Built with HTML &amp; CSS &nbsp;·&nbsp; © 2026
+        </footer>
+
+      </div><!-- /section-gap -->
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<script>
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('open');
+  }
+
+  // Highlight active nav item on hash change
+  document.querySelectorAll('.nav-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      document.querySelectorAll('.nav-item').forEach(function(i) { i.classList.remove('active'); });
+      item.classList.add('active');
+      // close sidebar on mobile
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('overlay').classList.remove('open');
+    });
+  });
+</script>
+</body>
+</html>
