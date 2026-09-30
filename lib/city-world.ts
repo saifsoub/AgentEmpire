@@ -1,6 +1,6 @@
-// S/ City world model — landmarks, districts of leisure, weather, and culture.
-// This is the narrative layer of the city: the skyline, the S/ Sign, Sunset
-// Boulevard, the beaches, mountains, and parks that make S/ City a place,
+// City world model — landmarks, districts of leisure, weather, and culture.
+// This is the narrative layer of the city: the skyline, the Sign, Sunset
+// Boulevard, the beaches, mountains, and parks that make City a place,
 // not just a dashboard.
 
 export type LandmarkKind = 'sign' | 'boulevard' | 'beach' | 'district' | 'nature' | 'culture' | 'institution';
@@ -14,7 +14,7 @@ export type CityLandmark = {
   href?: string;
 };
 
-export const CITY_NAME = 'S/ City';
+export const CITY_NAME = 'City';
 
 export const CITY_TAGLINE =
   'A vibrant city known for its iconic skyline, palm-lined streets, and diverse 3D architecture — urban excitement with natural charm.';
@@ -22,10 +22,10 @@ export const CITY_TAGLINE =
 export const cityLandmarks: CityLandmark[] = [
   {
     id: 's-sign',
-    name: 'The S/ Sign',
+    name: 'The Sign',
     kind: 'sign',
     tagline: 'Symbol of the entertainment industry',
-    description: 'Perched on the hills above the city, the S/ Sign watches over every district. It stands for the creative engine of S/ City — every broadcast, every launch, every agent debut happens under its glow.',
+    description: 'Perched on the hills above the city, the Sign watches over every district. It stands for the creative engine of City — every broadcast, every launch, every agent debut happens under its glow.',
     href: '/content',
   },
   {
@@ -33,12 +33,12 @@ export const cityLandmarks: CityLandmark[] = [
     name: 'Sunset Boulevard',
     kind: 'boulevard',
     tagline: 'The glamorous spine of the city',
-    description: 'Palm-lined and neon-lit, Sunset Boulevard captures the essence of the S/ lifestyle. Deals are celebrated here after they close, and the city’s best offers are unveiled on its marquees.',
+    description: 'Palm-lined and neon-lit, Sunset Boulevard captures the essence of the city lifestyle. Deals are celebrated here after they close, and the city’s best offers are unveiled on its marquees.',
     href: '/offers',
   },
   {
     id: 'executive-beach',
-    name: 'The S/ Executive District',
+    name: 'The Executive District',
     kind: 'beach',
     tagline: 'Stunning beachfront, executive calm',
     description: 'The city’s natural beauty is showcased by its beaches, and none more than the Executive District shoreline — where founder-level direction is set with the ocean in view.',
@@ -46,7 +46,7 @@ export const cityLandmarks: CityLandmark[] = [
   },
   {
     id: 's-university',
-    name: 'S/ University',
+    name: 'University',
     kind: 'institution',
     tagline: 'The first official Harvard-level agents university',
     description: 'A full team of resident experts educates, drills, and examines agents so owners can elevate their agents’ design and execution capabilities — and certify that those skills are applied successfully.',
@@ -54,7 +54,7 @@ export const cityLandmarks: CityLandmark[] = [
   },
   {
     id: 's-banking',
-    name: 'S/ Banking',
+    name: 'Banking',
     kind: 'institution',
     tagline: 'End-to-end secure payment gateways and agent wallets',
     description: 'The financial heart of the city. Owners get secure payment gateways; agents get controllable wallets. Human approval is always requested for balance changes, top-ups, and every consequential move of money.',
