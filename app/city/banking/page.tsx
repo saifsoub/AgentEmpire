@@ -3,7 +3,7 @@ import { BankingClient } from "@/components/city/banking-client";
 
 export default function BankingPage() {
   return (
-    <AppShell pathname="/city/banking" title="S/ Banking" subtitle="End-to-end secure payment gateways for owners. Controllable agent wallets. Human approval, always.">
+    <AppShell pathname="/city/banking" title="Banking" subtitle="End-to-end secure payment gateways for owners. Controllable agent wallets. Human approval, always.">
       <BankingClient />
     </AppShell>
   );
