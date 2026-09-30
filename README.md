@@ -1,10 +1,10 @@
 # AgentEmpire — Personal Empire OS
 
-[![Stack](https://img.shields.io/badge/part%20of-S%2F%20Operator%20Stack-0f766e)](docs/ECOSYSTEM.md)
+[![Stack](https://img.shields.io/badge/part%20of-Operator%20Stack-0f766e)](docs/ECOSYSTEM.md)
 [![Kernel](https://img.shields.io/badge/spine-S--OS-blue)](https://github.com/saifsoub/S-OS)
 [![Runtime](https://img.shields.io/badge/runtime-n8n-0f766e)](https://github.com/saifsoub/n8n)
 
-Dark-mode **operator cockpit** for running multiple businesses from one surface — opportunities, offers, decisions, content, agents, and weekly briefings. Built for **Seif / DoneAi / S/** workflows; pairs with [S-OS](https://github.com/saifsoub/S-OS) (control plane) and [n8n](https://github.com/saifsoub/n8n) (automation runtime).
+Dark-mode **operator cockpit** for running multiple businesses from one surface — opportunities, offers, decisions, content, agents, and weekly briefings. Built for multi-business operator workflows; pairs with [S-OS](https://github.com/saifsoub/S-OS) (control plane) and [n8n](https://github.com/saifsoub/n8n) (automation runtime).
 
 See [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) for the full stack diagram and [docs/RUNTIME.md](docs/RUNTIME.md) for the recovered Meridian/AgentEmpire runtime, deployment and verification contract.
 
