@@ -1,4 +1,4 @@
-// S/ Banking — end-to-end secure payment gateways for owners and
+// Banking — end-to-end secure payment gateways for owners and
 // controllable wallets for agents. Human approval is always requested for
 // (and not limited to) balance changes, top-ups, withdrawals, and spends:
 // every transaction is created PENDING_APPROVAL and only applies after an
