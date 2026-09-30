@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export default async function SettingsPage() {
   const settings = await getSettings();
   return (
-    <AppShell pathname="/settings" title="Settings" subtitle="Configure your Empire OS preferences.">
+    <AppShell pathname="/settings" title="The Archive" subtitle="Settings, evidence, and operating memory for the city.">
       <SettingsForm initial={settings} />
     </AppShell>
   );

@@ -22,7 +22,7 @@ export default async function LeadsPage() {
   const liveAssets = db.assets.filter(a => ["PRODUCTIZED", "PUBLISHED", "MONETIZED"].includes(a.status));
 
   return (
-    <AppShell pathname="/leads" title="Leads" subtitle="Every inquiry that came through your offer and asset pages.">
+    <AppShell pathname="/leads" title="Arrivals Hall" subtitle="Every inbound request, inquiry, and first signal entering the city.">
       <div className="grid gap-6">
         {/* Stats row */}
         <div className="grid gap-4 md:grid-cols-3">

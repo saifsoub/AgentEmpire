@@ -6,7 +6,7 @@ import { getDb } from "@/lib/store";
 export default async function LifestylePage() {
   const db = await getDb();
   return (
-    <AppShell pathname="/lifestyle" title="Lifestyle" subtitle="Design your environment for peak output and compounding returns.">
+    <AppShell pathname="/lifestyle" title="The Quarters" subtitle="Personal infrastructure that protects executive capacity and quality of life.">
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {db.lifestyle.map(item => (
           <SectionCard key={item.id} title={item.title} description={item.category}>
