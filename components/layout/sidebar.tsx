@@ -3,9 +3,9 @@ import { ArrowLeftRight, ShoppingBag, Radio, Scale, DoorOpen, Bot, Hammer, Home,
 import { cn } from "@/lib/utils";
 
 const districts = [
-  { href: "/city",            label: "S/ City",          icon: Map,           city: true  },
-  { href: "/city/university", label: "S/ University",    icon: GraduationCap              },
-  { href: "/city/banking",    label: "S/ Banking",       icon: Landmark                   },
+  { href: "/city",            label: "City",          icon: Map,           city: true  },
+  { href: "/city/university", label: "University",    icon: GraduationCap              },
+  { href: "/city/banking",    label: "Banking",       icon: Landmark                   },
   { href: "/opportunities", label: "The Exchange",      icon: ArrowLeftRight             },
   { href: "/offers",        label: "The Marketplace",   icon: ShoppingBag                },
   { href: "/content",       label: "Broadcast Tower",   icon: Radio                      },
