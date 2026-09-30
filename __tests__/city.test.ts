@@ -4,7 +4,7 @@ import { evaluateWalletTransaction, applyTransaction, isOutflow } from "@/lib/ci
 import { enrollAgentSchema, createWalletSchema, requestWalletTransactionSchema } from "@/lib/validators";
 import { cityLandmarks } from "@/lib/city-world";
 
-describe("S/ University", () => {
+describe("University", () => {
   it("exposes the design elevation flagship program", () => {
     expect(getProgram("design-elevation")?.school).toBe("School of Design Engineering");
     expect(universityPrograms.length).toBeGreaterThanOrEqual(3);
@@ -34,7 +34,7 @@ describe("S/ University", () => {
   });
 });
 
-describe("S/ Banking policy", () => {
+describe("Banking policy", () => {
   const wallet = { status: "ACTIVE" as const, balance: 100, dailyLimit: 50 };
 
   it("classifies outflows", () => {
@@ -83,7 +83,7 @@ describe("S/ Banking policy", () => {
   });
 });
 
-describe("S/ City validators", () => {
+describe("City validators", () => {
   it("accepts a valid enrollment", () => {
     expect(enrollAgentSchema.safeParse({ agentId: "agent_1", programId: "design-elevation" }).success).toBe(true);
   });
@@ -107,7 +107,7 @@ describe("S/ City validators", () => {
   });
 });
 
-describe("S/ City world", () => {
+describe("City world", () => {
   it("includes the signature landmarks", () => {
     const ids = cityLandmarks.map((l) => l.id);
     expect(ids).toContain("s-sign");
