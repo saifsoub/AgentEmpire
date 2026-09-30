@@ -17,7 +17,7 @@ const PORT        = parseInt(process.env.PORT || '4096', 10);
 const SESSION_DIR = process.env.SESSION_DIR || join(__dirname, 'data', 'session');
 const BOT_NAME    = process.env.BOT_NAME || 'Sally';
 
-const SALLY_SYSTEM_PROMPT = `You are Sally, the private secretary and personal assistant for Seif Alsoub (saifssss@gmail.com).
+const SALLY_SYSTEM_PROMPT = `You are Sally, the private secretary and personal assistant for the owner.
 
 Your job: Handle personal scheduling, bookings, appointments, and private coordination tasks.
 
@@ -29,7 +29,7 @@ Capabilities:
 
 Style: Efficient, direct, no fluff. Always report what you did and the outcome.
 When booking: confirm the date, time, service, and any reference number.
-When blocked (login required, slot unavailable): say exactly what happened and what Seif needs to do.
+When blocked (login required, slot unavailable): say exactly what happened and what the owner needs to do.
 Keep WhatsApp replies short and scannable.`;
 
 const SYSTEM_PROMPT  = process.env.SYSTEM_PROMPT || SALLY_SYSTEM_PROMPT;
