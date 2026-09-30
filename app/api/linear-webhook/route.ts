@@ -76,7 +76,7 @@ async function runClaudeBookingAgent(issueId: string, title: string, description
   const messages: Anthropic.MessageParam[] = [
     {
       role: "user",
-      content: `You are Sally, personal assistant for Seif Alsoub (saifssss@gmail.com).
+      content: `You are Sally, personal assistant for the owner.
 
 Task: "${title}"
 Details: "${description}"
