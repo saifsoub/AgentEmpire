@@ -2,7 +2,7 @@
 
 ## Purpose
 
-AgentEmpire is the **human-facing control surface** in the S/ Operator Stack. Operators use it to see state, create work, run agents, and review briefings — without opening n8n or curl for every action.
+AgentEmpire is the **human-facing control surface** in the Operator Stack. Operators use it to see state, create work, run agents, and review briefings — without opening n8n or curl for every action.
 
 It does **not** replace [S-OS](https://github.com/saifsoub/S-OS) (governed command plane) or [n8n](https://github.com/saifsoub/n8n) (workflow runtime). It **consumes** them when integrated.
 
