@@ -17,15 +17,15 @@ Historical Codex commits referenced in Linear (`39eb715`, `96e8cca`) are not pre
 
 ## Canonical production profile
 
-Meridian is the private S/ control-room UI. The canonical production profile is a hardened Linux **Node profile** (rootless container or systemd-managed Node process) behind the private S/ service fabric.
+Meridian is the private control-room UI. The canonical production profile is a hardened Linux **Node profile** (rootless container or systemd-managed Node process) behind the private service fabric.
 
 The control boundary is:
 
-`Meridian UI → S/ Control API → authorization / approval / effect engine → runtime adapter → verification → event ledger`
+`Meridian UI → Control API → authorization / approval / effect engine → runtime adapter → verification → event ledger`
 
 The read boundary is:
 
-`Meridian UI → S/ Control API → normalized read models`
+`Meridian UI → Control API → normalized read models`
 
 The UI must not call cloud, network, GitHub, payment, database-admin or other infrastructure-provider administration APIs directly from browser code.
 
@@ -99,11 +99,11 @@ Repository provider credentials and connector tokens are **server-only by defaul
 
 Only variables intentionally designed as browser-safe configuration may use the `NEXT_PUBLIC_` prefix. A provider secret must never be renamed with that prefix merely to make browser code work.
 
-The production Meridian control path must expose an explicit S/ Control API base URL and authenticated server-side boundary. Provider unavailability must produce a deterministic degraded/fallback state rather than optimistic success.
+The production Meridian control path must expose an explicit Control API base URL and authenticated server-side boundary. Provider unavailability must produce a deterministic degraded/fallback state rather than optimistic success.
 
 ## Private exposure
 
-The intended owner/operator surface is private. Tailscale service identity or the approved S/ private service fabric may publish the Node service to authorized operators. Public Funnel/admin exposure is not part of this baseline.
+The intended owner/operator surface is private. Tailscale service identity or the approved private service fabric may publish the Node service to authorized operators. Public Funnel/admin exposure is not part of this baseline.
 
 ## Deployment boundary for this recovery branch
 
@@ -115,6 +115,6 @@ This recovery branch only restores a reproducible runtime/package contract and v
 - Tailscale policy changes;
 - public exposure;
 - direct provider administration from the browser;
-- bypassing S/ approval policy.
+- bypassing approval policy.
 
 Those remain separately controlled actions.
