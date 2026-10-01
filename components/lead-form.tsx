@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { Button, Input, Textarea } from "@/components/ui";
+import { AGENCY_CONTACT_CONSENT } from "@/lib/validators";
 
 interface LeadFormProps {
   sourceType: "offer" | "asset";
@@ -17,6 +18,8 @@ export function LeadForm({ sourceType, sourceId, sourceName, ctaLabel = "Request
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [consentAccepted, setConsentAccepted] = useState(false);
+  const [submissionId] = useState(() => crypto.randomUUID());
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -26,7 +29,18 @@ export function LeadForm({ sourceType, sourceId, sourceName, ctaLabel = "Request
       const res = await fetch("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, message, sourceType, sourceId, sourceName }),
+        body: JSON.stringify({
+          submissionId,
+          name,
+          email,
+          message,
+          sourceType,
+          sourceId,
+          sourceName,
+          consentAccepted,
+          consentText: AGENCY_CONTACT_CONSENT,
+          website: "",
+        }),
       });
       if (!res.ok) throw new Error("Submission failed");
       setDone(true);
@@ -61,6 +75,16 @@ export function LeadForm({ sourceType, sourceId, sourceName, ctaLabel = "Request
         <label className="mb-1.5 block text-sm text-secondary">What's your biggest challenge right now? <span className="text-muted">(optional)</span></label>
         <Textarea rows={3} placeholder="Tell us what you're working on..." value={message} onChange={e => setMessage(e.target.value)} />
       </div>
+      <label className="flex items-start gap-2 text-sm text-secondary">
+        <input
+          type="checkbox"
+          checked={consentAccepted}
+          onChange={event => setConsentAccepted(event.target.checked)}
+          required
+          className="mt-1"
+        />
+        <span>{AGENCY_CONTACT_CONSENT}</span>
+      </label>
       {error && <p className="text-sm text-red-400">{error}</p>}
       <Button type="submit" disabled={submitting} className="w-full gap-2 py-3 text-base">
         {submitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Submitting…</> : ctaLabel}

@@ -6,6 +6,7 @@ import {
   createAssetSchema,
   analyzeDecisionSchema,
   createLeadSchema,
+  AGENCY_CONTACT_CONSENT,
   createTaskSchema,
   updateSettingsSchema,
 } from "@/lib/validators";
@@ -141,31 +142,41 @@ describe("analyzeDecisionSchema", () => {
 });
 
 describe("createLeadSchema", () => {
+  const validLead = { submissionId: "44f01f4a-a7e6-4e91-9b88-b07e20fbcb84", name: "John", email: "john@example.com", sourceType: "offer", sourceId: "offer_01", sourceName: "Diagnostic", consentAccepted: true, consentText: AGENCY_CONTACT_CONSENT };
   it("accepts a valid lead", () => {
-    const result = createLeadSchema.safeParse({ name: "John", email: "john@example.com", sourceType: "offer", sourceId: "offer_01", sourceName: "Diagnostic" });
+    const result = createLeadSchema.safeParse(validLead);
     expect(result.success).toBe(true);
   });
 
   it("rejects empty name", () => {
-    expect(createLeadSchema.safeParse({ name: "", email: "john@example.com", sourceType: "offer", sourceId: "id", sourceName: "name" }).success).toBe(false);
+    expect(createLeadSchema.safeParse({ ...validLead, name: "" }).success).toBe(false);
   });
 
   it("rejects invalid email", () => {
-    expect(createLeadSchema.safeParse({ name: "John", email: "not-an-email", sourceType: "offer", sourceId: "id", sourceName: "name" }).success).toBe(false);
+    expect(createLeadSchema.safeParse({ ...validLead, email: "not-an-email" }).success).toBe(false);
   });
 
   it("rejects invalid sourceType", () => {
-    expect(createLeadSchema.safeParse({ name: "John", email: "j@j.com", sourceType: "unknown", sourceId: "id", sourceName: "name" }).success).toBe(false);
+    expect(createLeadSchema.safeParse({ ...validLead, sourceType: "unknown" }).success).toBe(false);
   });
 
   it("accepts asset as sourceType", () => {
-    const result = createLeadSchema.safeParse({ name: "Jane", email: "jane@example.com", sourceType: "asset", sourceId: "asset_01", sourceName: "Toolkit" });
+    const result = createLeadSchema.safeParse({ ...validLead, sourceType: "asset", sourceId: "asset_01", sourceName: "Toolkit" });
     expect(result.success).toBe(true);
   });
 
   it("defaults message to empty string", () => {
-    const result = createLeadSchema.safeParse({ name: "Jane", email: "jane@example.com", sourceType: "asset", sourceId: "asset_01", sourceName: "Toolkit" });
+    const result = createLeadSchema.safeParse(validLead);
     if (result.success) expect(result.data.message).toBe("");
+  });
+
+  it("requires explicit purpose-specific contact consent", () => {
+    expect(createLeadSchema.safeParse({ ...validLead, consentAccepted: false }).success).toBe(false);
+    expect(createLeadSchema.safeParse({ ...validLead, consentText: "generic marketing" }).success).toBe(false);
+  });
+
+  it("rejects a populated spam honeypot", () => {
+    expect(createLeadSchema.safeParse({ ...validLead, website: "https://spam.example" }).success).toBe(false);
   });
 });
 

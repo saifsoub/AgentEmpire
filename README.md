@@ -31,6 +31,24 @@ See [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) for the full stack diagram and [docs/
 
 ## Quick start
 
+### S/Agency capture storage
+
+Apply `supabase/migrations/20260929000000_create_agency_pipeline.sql` to the S/Agency
+Supabase project, then configure these server-only variables for the `/api/leads`
+route (never expose the service-role key through a `NEXT_PUBLIC_` variable):
+
+```bash
+SUPABASE_URL=https://<project-ref>.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=<server-only-service-role-key>
+```
+
+The offer and asset forms are the only supported capture purposes. They record
+explicit S/Agency contact consent and an idempotent source receipt. Company and
+opportunity records remain staff-created qualification data; this integration does
+not read from or write to the separate University interest intake.
+
+---
+
 Use the committed lockfile for a reproducible install:
 
 ```bash
