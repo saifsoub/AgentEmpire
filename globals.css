@@ -11,8 +11,24 @@
   --text-secondary: #B8C2D6;
   --text-muted: #7E8AA3;
   --accent: #EB5815;
+
+  /* Agency Control Panel design tokens (shadcn-style HSL, dark mode) */
+  --cp-background: 220 5% 11%;
+  --cp-foreground: 0 0% 99%;
+  --cp-card: 0 1% 14%;
+  --cp-card-foreground: 0 0% 99%;
+  --cp-primary: 21 42% 55%;
+  --cp-primary-foreground: 0 0% 99%;
+  --cp-secondary: 0 0% 18%;
+  --cp-secondary-foreground: 0 0% 99%;
+  --cp-muted: 0 0% 18%;
+  --cp-muted-foreground: 0 0% 65%;
+  --cp-destructive: 0 62% 30%;
+  --cp-destructive-foreground: 0 0% 99%;
+  --cp-border: 0 0% 16%;
+  --cp-radius: 0.5rem;
 }
 html, body { min-height: 100%; background: var(--bg-app); color: var(--text-primary); }
-body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+body { font-family: 'Wix Madefor Text', 'WixMadeforText', Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
 * { border-color: var(--border); }
 .card { @apply bg-surface border border-border rounded-[1.25rem] shadow-soft; }
