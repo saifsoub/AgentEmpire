@@ -3,6 +3,7 @@ import { ArrowLeftRight, ShoppingBag, Radio, Scale, DoorOpen, Bot, Hammer, Home,
 import { cn } from "@/lib/utils";
 
 const districts = [
+  { href: "/control", label: "Control", icon: Bot },
   { href: "/city",            label: "City",          icon: Map,           city: true  },
   { href: "/city/university", label: "University",    icon: GraduationCap              },
   { href: "/city/banking",    label: "Banking",       icon: Landmark                   },
@@ -51,3 +52,4 @@ export function Sidebar({ pathname }: { pathname: string }) {
     </aside>
   );
 }
+

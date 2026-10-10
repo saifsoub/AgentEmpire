@@ -77,14 +77,11 @@ export class NativeProvider implements ToolProvider {
     }
 
     return {
-      status: "executed",
+      status: "missing_connector",
       provider: this.name,
       capability: request.capability,
-      message: "Agent executed internal operational work.",
-      result: {
-        objective: input.objective || request.summary,
-        completedInternally: true
-      }
+      message: "No native executor implements this capability. No worker result was produced.",
+      result: { objective: input.objective || request.summary }
     };
   }
 }
@@ -135,3 +132,4 @@ export class ManualProvider implements ToolProvider {
 export function getProviders(): ToolProvider[] {
   return [new NativeProvider(), new ComposioProvider(), new WebhookProvider(), new McpProvider(), new ManualProvider()];
 }
+
