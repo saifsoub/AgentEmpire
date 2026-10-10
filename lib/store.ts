@@ -5,14 +5,27 @@ import { DEFAULT_AGENTS } from "@/lib/agents/definitions";
 import { getProgram, sessionProgressStep, computeExamScore, examPassed } from "@/lib/city-university";
 import { evaluateWalletTransaction, applyTransaction, isOutflow } from "@/lib/city-banking";
 
-import { readFile, writeFile, mkdir } from "fs/promises";
+import { readFile, writeFile, mkdir, rename } from "fs/promises";
 import path from "path";
+import { randomUUID } from "node:crypto";
 
 const DEFAULT_DB: DemoDb = { opportunities: [], offers: [], contentItems: [], assets: [], decisions: [], briefings: [], lifestyle: [], tasks: [], leads: [], agents: [], agentRuns: [], approvals: [] };
 const DATA_DIR = process.env.DATA_DIR ?? path.join(process.cwd(), "var");
 const DB_PATH = path.join(DATA_DIR, "empire-db.json");
-async function readDb(): Promise<DemoDb> { try { const raw = await readFile(DB_PATH, "utf8"); return { ...DEFAULT_DB, ...JSON.parse(raw) } as DemoDb; } catch { return { ...DEFAULT_DB }; } }
-async function writeDb(data: DemoDb) { try { await mkdir(DATA_DIR, { recursive: true }); await writeFile(DB_PATH, JSON.stringify(data)); } catch {} }
+async function readDb(): Promise<DemoDb> {
+  try { return { ...DEFAULT_DB, ...JSON.parse(await readFile(DB_PATH, "utf8")) } as DemoDb; }
+  catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") return structuredClone(DEFAULT_DB); throw error; }
+}
+async function writeDb(data: DemoDb) {
+  await mkdir(DATA_DIR, { recursive: true });
+  const temporary = `${DB_PATH}.${randomUUID()}.tmp`;
+  await writeFile(temporary, JSON.stringify(data), { mode: 0o600 });
+  await rename(temporary, DB_PATH);
+}
+export async function getDbEvidence(): Promise<{ db: DemoDb; error?: string }> {
+  try { return { db: await readDb() }; }
+  catch { return { db: structuredClone(DEFAULT_DB), error: "Stored evidence is unavailable; no healthy state inferred." }; }
+}
 const now = () => new Date().toISOString();
 const id = (prefix: string) => `${prefix}_${Math.random().toString(36).slice(2, 10)}`;
 const normalize = (value: string) => value.trim().toLowerCase().replace(/\s+/g, " ");
@@ -64,3 +77,4 @@ export async function requestWalletTransaction(input: { walletId: string; type: 
 export async function resolveWalletTransaction(transactionId: string, decision: "APPROVED" | "REJECTED") { const db = await readDb(); const tx = (db.walletTransactions ?? []).find(t => t.id === transactionId); if (!tx) throw new Error("Transaction not found"); if (tx.status !== "PENDING_APPROVAL") return { transaction: tx, wallet: (db.wallets ?? []).find(w => w.id === tx.walletId) ?? null }; const wallet = (db.wallets ?? []).find(w => w.id === tx.walletId); if (!wallet) throw new Error("Wallet not found"); const approval = (db.approvals ?? []).find(a => a.id === tx.approvalId); const finalize = async (status: WalletTransaction["status"], reason?: string) => { tx.status = status; tx.rejectionReason = reason; tx.updatedAt = now(); if (approval) { approval.status = status === "APPROVED" ? "APPROVED" : "REJECTED"; approval.updatedAt = now(); } await writeDb(db); return { transaction: tx, wallet }; }; if (decision === "REJECTED") return finalize("REJECTED", "Rejected by owner"); const today = now().slice(0, 10); const approvedOutflowToday = (db.walletTransactions ?? []).filter(t => t.walletId === wallet.id && t.status === "APPROVED" && isOutflow(t.type) && t.updatedAt.slice(0, 10) === today).reduce((sum, t) => sum + t.amount, 0); const verdict = evaluateWalletTransaction(wallet, tx, approvedOutflowToday); if (!verdict.allowed) return finalize("REJECTED", verdict.reason); wallet.balance = applyTransaction(wallet.balance, tx); wallet.updatedAt = now(); return finalize("APPROVED"); }
 
 export async function generateWeeklyBrief() { const db = await readDb(); const top = [...db.opportunities].sort((a,b)=>b.totalScore-a.totalScore).slice(0,3); const item = { id: id("brief"), weekStart: new Date().toISOString().slice(0,10), weekObjective: "Turn one high-value idea into a monetizable asset and publish two authority signals.", topMoves: [`Package ${top[0]?.title ?? "your top opportunity"} into a clear offer`, "Publish 2 authority posts linked to a real offer", "Convert one existing framework into a premium downloadable asset"], risks: ["Over-splitting focus", "Packaging too late", "Posting without clear CTA"], focusAreas: ["Revenue", "Brand", "Assets"], reviewNotes: "Keep this week focused on leverage and conversion.", status: "READY", createdAt: now(), updatedAt: now() }; db.briefings.unshift(item); db.briefings = db.briefings.slice(0,8); await writeDb(db); return item; }
+

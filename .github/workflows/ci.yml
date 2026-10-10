@@ -3,6 +3,9 @@ name: AgentEmpire Validation
 on:
   pull_request:
     paths:
+      - "app/**"
+      - "components/**"
+      - "tests/control/**"
       - "lib/**"
       - "__tests__/**"
       - "docs/**"
@@ -22,7 +25,10 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - name: Control request contract tests
+        run: npm run test:control
       - name: Install
         run: npm ci --no-audit --no-fund
       - name: Verify
         run: npm run deploy:verify
+
